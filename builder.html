@@ -980,8 +980,8 @@ Return ONLY valid JSON in exactly this structure (no markdown, no preamble):
     }
 
     clearInterval(stepInterval);
-    const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
-    generatedConfig = JSON.parse(cleaned);
+    generatedConfig = robustParseJSON(text);
+    if(!generatedConfig) throw new Error('Could not parse the generated scenario. Please try again.');
     showSummaryCard(generatedConfig);
 
   } catch(err){
@@ -990,6 +990,21 @@ Return ONLY valid JSON in exactly this structure (no markdown, no preamble):
     document.getElementById('gen-form').style.display = '';
     document.getElementById('gen-status').textContent = 'Error: ' + err.message;
   }
+}
+
+function robustParseJSON(raw) {
+  // Strip markdown code fences
+  let s = raw.replace(/```json/gi,'').replace(/```/g,'').trim();
+  // Extract just the JSON object if there's surrounding text
+  const start = s.indexOf('{');
+  const end   = s.lastIndexOf('}');
+  if(start !== -1 && end !== -1) s = s.slice(start, end+1);
+  // Replace literal newlines/tabs inside strings with spaces
+  // (Gemini sometimes emits unescaped control chars inside JSON strings)
+  s = s.replace(/[\r\n\t]+/g, ' ');
+  // Remove other non-printable control characters
+  s = s.replace(/[\x00-\x1F\x7F]/g, '');
+  try { return JSON.parse(s); } catch(_) { return null; }
 }
 
 function showSummaryCard(cfg){
@@ -1279,8 +1294,8 @@ async function runDifficulty(){
 
 SCENES: ${scenes.map((s,i)=>`Scene ${i+1} (${s.label||'Scene '+(i+1)}): ${s.context}`).join('\n')}`;
     const text = await callSmartAI(prompt);
-    const cleaned = text.replace(/```json|```/g,'').trim();
-    const ratings = JSON.parse(cleaned);
+    const ratings = robustParseJSON('[' + text.replace(/```json|```/g,'').replace(/^\s*\[/,'').replace(/\]\s*$/,'') + ']') ||
+                    robustParseJSON(text.replace(/```json|```/g,'').trim());
     const colors = ['','#4ADE80','#86EFAC','#FBBF24','#FB923C','#F87171'];
     result.className='smart-result show';
     result.innerHTML='<div class="difficulty-bars">'+ratings.map(r=>{
