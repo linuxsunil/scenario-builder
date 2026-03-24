@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Working with Raj</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFF;--surface2:#F0EDE7;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#1A1814;--text2:#6B6760;--text3:#9B9890;
+  --raj:#2D3A5C;--raj-light:#E8ECF5;
+  --you:#1A4A3A;--you-light:#E6F2EC;
+  --coach:#4A2D6B;--coach-light:#F0EAF8;
+  --red:#C94040;--red-light:#FAE8E8;
+  --yellow:#B87A1A;--yellow-light:#FDF3DC;
+  --green:#2D7A4F;--green-light:#E6F5ED;
+  --fd:'DM Serif Display',Georgia,serif;
+  --fb:'DM Sans',system-ui,sans-serif;
+  --r:12px;--rs:8px;
+  --sh:0 2px 12px rgba(0,0,0,.06);
+  --shm:0 4px 24px rgba(0,0,0,.10);
+}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
+#app{width:100%;max-width:740px}
+
+/* ── HEADER ── */
+.scenario-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.scenario-title{font-family:var(--fd);font-size:1.05rem;color:var(--text);font-style:italic}
+.act-badge{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:20px;transition:background .4s}
+
+/* ── SCORE ── */
+.score-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1.25rem;margin-bottom:1.25rem;box-shadow:var(--sh)}
+.score-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.score-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
+.score-value{font-size:12px;font-weight:600;color:var(--text2)}
+.score-track{height:9px;background:var(--surface2);border-radius:20px;overflow:hidden}
+.score-fill{height:100%;border-radius:20px;transition:width .9s cubic-bezier(.34,1.56,.64,1),background .9s ease;background:var(--red)}
+.score-markers{display:flex;justify-content:space-between;margin-top:4px;padding:0 2px}
+.score-markers span{font-size:10px;color:var(--text3)}
+.score-bump{animation:sPulse .6s ease}
+@keyframes sPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+
+/* ── CHARACTER STAGE ── */
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem 1rem 1rem;margin-bottom:1.25rem;box-shadow:var(--sh);display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;min-height:180px;position:relative;overflow:hidden}
+.stage-bg{position:absolute;inset:0;opacity:.03;background:repeating-linear-gradient(90deg,#000 0,#000 1px,transparent 1px,transparent 40px),repeating-linear-gradient(#000 0,#000 1px,transparent 1px,transparent 40px)}
+
+/* character slot */
+.char-slot{display:flex;flex-direction:column;align-items:center;gap:.5rem;flex:1;max-width:180px;position:relative;z-index:1}
+.char-slot.hidden{opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .5s,transform .5s}
+.char-slot.visible{opacity:1;transform:translateY(0);transition:opacity .5s,transform .5s}
+.char-name{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
+.char-name.raj-col{color:var(--raj)}
+.char-name.you-col{color:var(--you)}
+.char-name.coach-col{color:var(--coach)}
+
+/* ── SVG FACE container ── */
+.face-wrap{width:90px;height:110px;position:relative}
+
+/* breathing idle */
+@keyframes breathe{0%,100%{transform:scaleY(1) translateY(0)}50%{transform:scaleY(1.015) translateY(-1.5px)}}
+.face-wrap svg{animation:breathe 3.5s ease-in-out infinite;transform-origin:bottom center}
+
+/* thinking eye drift */
+@keyframes thinkEye{0%,100%{transform:translateX(0)}40%{transform:translateX(3px)}70%{transform:translateX(-2px)}}
+.thinking .eye-l,.thinking .eye-r{animation:thinkEye 1.2s ease-in-out infinite}
+@keyframes thinkBrow{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.thinking .brow-l,.thinking .brow-r{animation:thinkBrow 1.2s ease-in-out infinite}
+
+/* lip sync */
+@keyframes lipOpen{0%,100%{d:path("M38 78 Q50 78 62 78")}50%{d:path("M38 76 Q50 84 62 76")}}
+.speaking .mouth{animation:lipOpen .25s ease-in-out infinite alternate}
+
+/* reaction bounce */
+@keyframes reactBounce{0%{transform:translateY(0)}30%{transform:translateY(-8px)}60%{transform:translateY(2px)}100%{transform:translateY(0)}}
+.reacting{animation:reactBounce .5s ease both}
+
+/* emotion — Raj's brow gets lighter as score rises */
+.brow-heavy{transition:transform .8s ease,opacity .8s ease}
+
+/* speech bubble above char */
+.speech-pip{position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:var(--surface);border-left:1px solid var(--border);border-top:1px solid var(--border);transform:translateX(-50%) rotate(45deg)}
+
+/* ── SCENE CARD ── */
+.scene-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shm);animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.scene-context{background:var(--surface2);border-bottom:1px solid var(--border);padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.ctx-icon{width:26px;height:26px;border-radius:6px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ctx-text{font-size:13px;color:var(--text2);line-height:1.5}
+.ctx-text strong{color:var(--text);font-weight:600}
+
+/* chat */
+.chat-area{padding:1.25rem;display:flex;flex-direction:column;gap:.9rem}
+.message{display:flex;gap:.7rem;align-items:flex-start;animation:fadeUp .3s ease both}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;flex-shrink:0}
+.av.raj{background:var(--raj-light);color:var(--raj);border:1.5px solid rgba(45,58,92,.15)}
+.av.you-av{background:var(--you-light);color:var(--you);border:1.5px solid rgba(26,74,58,.15)}
+.av.coach-av{background:var(--coach-light);color:var(--coach);border:1.5px solid rgba(74,45,107,.15);font-size:9px;font-weight:700}
+.bw{display:flex;flex-direction:column;gap:3px;max-width:calc(100% - 46px)}
+.sname{font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--text3);padding:0 4px;text-transform:uppercase}
+.bubble{padding:.7rem .95rem;border-radius:var(--r);font-size:13.5px;line-height:1.65;color:var(--text)}
+.raj-b{background:var(--raj-light);border:1px solid rgba(45,58,92,.12);border-radius:var(--r) var(--r) var(--r) 4px}
+.you-b{background:var(--you-light);border:1px solid rgba(26,74,58,.12);border-radius:var(--r) var(--r) 4px var(--r)}
+.coach-b{background:var(--coach-light);border:1px solid rgba(74,45,107,.15);border-radius:var(--r) var(--r) var(--r) 4px;font-style:italic}
+.narrator{font-size:12.5px;font-style:italic;color:var(--text2);text-align:center;padding:.2rem 1rem;line-height:1.6}
+
+/* typing dot */
+.tdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;animation:tblink 1s infinite}
+@keyframes tblink{0%,100%{opacity:.15}50%{opacity:.85}}
+
+/* input */
+.input-area{padding:0 1.25rem 1.25rem}
+.input-prompt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem}
+.input-prompt span{color:var(--coach)}
+textarea{width:100%;min-height:86px;padding:.8rem .95rem;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--surface);font-family:var(--fb);font-size:13.5px;line-height:1.6;color:var(--text);resize:vertical;outline:none;transition:border-color .18s}
+textarea:focus{border-color:var(--raj)}
+textarea:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed}
+.input-row{display:flex;align-items:center;justify-content:space-between;margin-top:.5rem;gap:.75rem}
+.char-hint{font-size:11px;color:var(--text3);flex-shrink:0}
+.send-btn{padding:.65rem 1.3rem;background:var(--raj);color:#fff;border:none;border-radius:var(--rs);font-family:var(--fb);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap}
+.send-btn:hover:not(:disabled){background:#1E2940;transform:translateY(-1px)}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.retry-label{font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:0 1.25rem .7rem;display:none}
+.retry-label.show{display:block}
+.continue-btn{display:none;margin:0 1.25rem 1.25rem;padding:.8rem 1.5rem;background:var(--raj);color:#fff;border:none;border-radius:var(--rs);font-family:var(--fb);font-size:13.5px;font-weight:600;cursor:pointer;width:calc(100% - 2.5rem);transition:all .18s}
+.continue-btn:hover{background:#1E2940;transform:translateY(-1px)}
+.continue-btn.show{display:block}
+
+/* end screen */
+.end-screen{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shm);animation:fadeUp .5s ease}
+.end-header{padding:2rem 1.5rem 1.5rem;text-align:center;border-bottom:1px solid var(--border)}
+.end-circle{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.9rem;margin:0 auto 1rem;border:3px solid}
+.end-title{font-family:var(--fd);font-size:1.5rem;margin-bottom:.5rem}
+.end-sub{font-size:13.5px;color:var(--text2);line-height:1.6;max-width:420px;margin:0 auto}
+.end-body{padding:1.5rem}
+.end-st{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.7rem}
+.end-narr{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:1.5rem}
+.end-tips{background:var(--surface2);border-radius:var(--rs);padding:1rem 1.25rem}
+.end-tips h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.7rem}
+.end-tip{font-size:13px;color:var(--text2);line-height:1.6;padding:.45rem 0;border-top:1px solid var(--border);display:flex;gap:8px}
+.tip-dot{width:5px;height:5px;border-radius:50%;background:var(--raj);flex-shrink:0;margin-top:8px}
+.restart-btn{display:block;margin:1.25rem 1.5rem;padding:.8rem;background:none;border:1.5px solid var(--border2);border-radius:var(--rs);font-family:var(--fb);font-size:13.5px;font-weight:500;color:var(--text2);cursor:pointer;width:calc(100% - 3rem);transition:all .18s;text-align:center}
+.restart-btn:hover{border-color:var(--raj);color:var(--raj);background:var(--raj-light)}
+@media(max-width:500px){body{padding:1rem .75rem}.face-wrap{width:70px;height:88px}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- header -->
+  <div class="scenario-header">
+    <span class="scenario-title">Working with Raj</span>
+    <span class="act-badge" id="act-badge">Act 1 · The Slide Dump</span>
+  </div>
+
+  <!-- score -->
+  <div class="score-panel">
+    <div class="score-header">
+      <span class="score-label">Collaboration Score</span>
+      <span class="score-value" id="score-text">20 / 100 — Getting started</span>
+    </div>
+    <div class="score-track"><div class="score-fill" id="score-fill" style="width:20%"></div></div>
+    <div class="score-markers"><span>Tense</span><span>Neutral</span><span>Collaborative</span></div>
+  </div>
+
+  <!-- CHARACTER STAGE -->
+  <div class="stage" id="stage">
+    <div class="stage-bg"></div>
+
+    <!-- Raj — left -->
+    <div class="char-slot visible" id="char-raj">
+      <div class="face-wrap" id="face-raj">
+        <svg id="svg-raj" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" width="90" height="110">
+          <!-- body / torso -->
+          <rect x="22" y="88" width="56" height="32" rx="8" fill="#2D3A5C"/>
+          <rect x="30" y="84" width="40" height="12" rx="4" fill="#3D4E7A"/>
+          <!-- neck -->
+          <rect x="40" y="75" width="20" height="14" rx="3" fill="#C8956A"/>
+          <!-- head -->
+          <ellipse cx="50" cy="52" rx="30" ry="34" fill="#C8956A"/>
+          <!-- hair -->
+          <ellipse cx="50" cy="22" rx="30" ry="14" fill="#1A1410"/>
+          <rect x="20" y="22" width="60" height="10" fill="#1A1410"/>
+          <!-- ears -->
+          <ellipse cx="20" cy="54" rx="5" ry="7" fill="#B8835A"/>
+          <ellipse cx="80" cy="54" rx="5" ry="7" fill="#B8835A"/>
+          <!-- brows — heavy, will animate with score -->
+          <rect class="brow-l" id="raj-brow-l" x="28" y="36" width="18" height="4" rx="2" fill="#1A1410" transform="rotate(-8,37,38)"/>
+          <rect class="brow-r" id="raj-brow-r" x="54" y="36" width="18" height="4" rx="2" fill="#1A1410" transform="rotate(8,63,38)"/>
+          <!-- eyes -->
+          <ellipse class="eye-l" cx="37" cy="48" rx="6" ry="6.5" fill="#1A1814"/>
+          <ellipse class="eye-r" cx="63" cy="48" rx="6" ry="6.5" fill="#1A1814"/>
+          <circle cx="38.5" cy="46.5" r="1.5" fill="#fff"/>
+          <circle cx="64.5" cy="46.5" r="1.5" fill="#fff"/>
+          <!-- nose -->
+          <path d="M50 52 Q46 60 49 63 Q50 64 51 63 Q54 60 50 52" fill="#B8835A"/>
+          <!-- mouth — default stern, will morph -->
+          <path class="mouth" id="raj-mouth" d="M38 74 Q50 71 62 74" stroke="#8B5E3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- collar -->
+          <polygon points="40,84 50,90 60,84 55,88 50,95 45,88" fill="#FFF" opacity=".9"/>
+        </svg>
+      </div>
+      <div class="char-name raj-col">Raj Mehta</div>
+    </div>
+
+    <!-- Coach — centre, hidden until needed -->
+    <div class="char-slot hidden" id="char-coach">
+      <div class="face-wrap" id="face-coach">
+        <svg id="svg-coach" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" width="90" height="110">
+          <!-- body -->
+          <rect x="22" y="88" width="56" height="32" rx="8" fill="#4A2D6B"/>
+          <rect x="30" y="84" width="40" height="12" rx="4" fill="#5E3A8A"/>
+          <!-- neck -->
+          <rect x="40" y="75" width="20" height="14" rx="3" fill="#D4A574"/>
+          <!-- head -->
+          <ellipse cx="50" cy="52" rx="29" ry="33" fill="#D4A574"/>
+          <!-- hair — locs/natural style -->
+          <ellipse cx="50" cy="20" rx="29" ry="13" fill="#2C1810"/>
+          <rect x="21" y="20" width="58" height="8" fill="#2C1810"/>
+          <ellipse cx="22" cy="38" rx="5" ry="14" fill="#2C1810"/>
+          <ellipse cx="78" cy="38" rx="5" ry="14" fill="#2C1810"/>
+          <!-- ears -->
+          <ellipse cx="21" cy="53" rx="4.5" ry="6.5" fill="#C49060"/>
+          <ellipse cx="79" cy="53" rx="4.5" ry="6.5" fill="#C49060"/>
+          <!-- glasses -->
+          <rect x="26" y="42" width="19" height="13" rx="4" fill="none" stroke="#2C1810" stroke-width="2"/>
+          <rect x="55" y="42" width="19" height="13" rx="4" fill="none" stroke="#2C1810" stroke-width="2"/>
+          <line x1="45" y1="48" x2="55" y2="48" stroke="#2C1810" stroke-width="2"/>
+          <line x1="26" y1="48" x2="22" y2="50" stroke="#2C1810" stroke-width="2"/>
+          <line x1="74" y1="48" x2="78" y2="50" stroke="#2C1810" stroke-width="2"/>
+          <!-- brows — friendly arched -->
+          <path class="brow-l" d="M27 40 Q36 36 45 40" stroke="#2C1810" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path class="brow-r" d="M55 40 Q64 36 73 40" stroke="#2C1810" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- eyes -->
+          <ellipse class="eye-l" cx="36" cy="49" rx="4.5" ry="5" fill="#2C1810"/>
+          <ellipse class="eye-r" cx="64" cy="49" rx="4.5" ry="5" fill="#2C1810"/>
+          <circle cx="37.5" cy="47.5" r="1.3" fill="#fff"/>
+          <circle cx="65.5" cy="47.5" r="1.3" fill="#fff"/>
+          <!-- nose -->
+          <path d="M50 54 Q47 60 49 63 Q50 64 51 63 Q53 60 50 54" fill="#C49060"/>
+          <!-- mouth — warm smile -->
+          <path class="mouth" id="coach-mouth" d="M38 73 Q50 80 62 73" stroke="#8B5030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- lanyard / badge -->
+          <path d="M42 84 L50 92 L58 84" stroke="#F0EAF8" stroke-width="2" fill="none"/>
+          <rect x="44" y="90" width="12" height="9" rx="2" fill="#F0EAF8"/>
+        </svg>
+      </div>
+      <div class="char-name coach-col">Learning Coach</div>
+    </div>
+
+    <!-- You / ID — right -->
+    <div class="char-slot visible" id="char-you">
+      <div class="face-wrap" id="face-you">
+        <svg id="svg-you" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" width="90" height="110">
+          <!-- body -->
+          <rect x="22" y="88" width="56" height="32" rx="8" fill="#1A4A3A"/>
+          <rect x="30" y="84" width="40" height="12" rx="4" fill="#2A6050"/>
+          <!-- neck -->
+          <rect x="40" y="75" width="20" height="14" rx="3" fill="#E8C49A"/>
+          <!-- head -->
+          <ellipse cx="50" cy="52" rx="29" ry="33" fill="#E8C49A"/>
+          <!-- hair — ponytail style -->
+          <ellipse cx="50" cy="21" rx="28" ry="12" fill="#3D2408"/>
+          <rect x="22" y="21" width="56" height="9" fill="#3D2408"/>
+          <ellipse cx="78" cy="30" rx="6" ry="18" fill="#3D2408"/>
+          <ellipse cx="80" cy="46" rx="5" ry="10" fill="#3D2408"/>
+          <!-- ears -->
+          <ellipse cx="21" cy="53" rx="4.5" ry="6.5" fill="#D4A870"/>
+          <ellipse cx="79" cy="53" rx="4.5" ry="6.5" fill="#D4A870"/>
+          <!-- earrings -->
+          <circle cx="20" cy="58" r="2.5" fill="#B87A1A"/>
+          <circle cx="80" cy="58" r="2.5" fill="#B87A1A"/>
+          <!-- brows — alert, slightly raised -->
+          <path class="brow-l" d="M27 39 Q36 35 44 39" stroke="#3D2408" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path class="brow-r" d="M56 39 Q64 35 73 39" stroke="#3D2408" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- eyes -->
+          <ellipse class="eye-l" cx="36" cy="49" rx="5.5" ry="6" fill="#2C1810"/>
+          <ellipse class="eye-r" cx="64" cy="49" rx="5.5" ry="6" fill="#2C1810"/>
+          <circle cx="37.5" cy="47.5" r="1.5" fill="#fff"/>
+          <circle cx="65.5" cy="47.5" r="1.5" fill="#fff"/>
+          <!-- nose -->
+          <path d="M50 55 Q47 61 49 64 Q50 65 51 64 Q53 61 50 55" fill="#D4A870"/>
+          <!-- mouth — neutral professional -->
+          <path class="mouth" id="you-mouth" d="M39 73 Q50 77 61 73" stroke="#8B5030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- notebook held in front -->
+          <rect x="28" y="95" width="20" height="26" rx="2" fill="#E6F2EC" stroke="#2A6050" stroke-width="1.5"/>
+          <line x1="32" y1="100" x2="44" y2="100" stroke="#2A6050" stroke-width="1" opacity=".5"/>
+          <line x1="32" y1="104" x2="44" y2="104" stroke="#2A6050" stroke-width="1" opacity=".5"/>
+          <line x1="32" y1="108" x2="40" y2="108" stroke="#2A6050" stroke-width="1" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="char-name you-col">You (ID)</div>
+    </div>
+  </div>
+
+  <!-- scene card -->
+  <div id="scene-container"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// ID CONFIGURATION — edit these two lines before uploading to Rise
+// ══════════════════════════════════════════════════════════════════════════
+const AI_PROVIDER = 'claude';        // 'claude'  |  'openai'  |  'gemini'
+const AI_KEY      = 'YOUR_KEY_HERE'; // paste your API key here
+// ══════════════════════════════════════════════════════════════════════════
+
+const SYSTEM_PROMPT_TEXT =
+  'You are an expert instructional design coach evaluating how an ID professional responds to a difficult SME. ' +
+  'The learner is playing the role of an Instructional Designer working with Raj, a senior SME who is dismissive. ' +
+  'The scenario unfolds across 3 acts: the slide dump, the credentials challenge, and the deadline ghost. ' +
+  'Evaluate the response on a score of 1, 2, or 3. ' +
+  '1 = Ineffective: passive, aggressive, or misses the point entirely. ' +
+  '2 = Partially effective: right instinct but weak execution or missed opportunity. ' +
+  '3 = Effective: confident, collaborative, strategically sound. ' +
+  'Write raj_reaction (1-2 sentences in Raj\'s voice, gruff but believable) and ' +
+  'coach_feedback (2-4 sentences: score 1 = explain what went wrong + reframe; score 2 = acknowledge what worked then what edges it out; score 3 = affirm what made it effective and name the skill). ' +
+  'Respond ONLY with valid JSON: {"score":1,"raj_reaction":"...","coach_feedback":"..."}';
+
+async function callAI(scene, learnerText) {
+  if (!AI_KEY || AI_KEY === 'YOUR_KEY_HERE') throw new Error('No API key configured — open index.html and set AI_KEY at the top of the script');
+
+  const userMsg =
+    'ACT: ' + scene.act + '\n' +
+    'SCENE: ' + scene.sceneContext + '\n' +
+    'RAJ SAID: ' + scene.rajSaid + '\n' +
+    'LEARNER: ' + learnerText + '\n' +
+    'Reply with JSON only.';
+
+  if (AI_PROVIDER === 'claude') {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': AI_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        max_tokens: 400,
+        system: SYSTEM_PROMPT_TEXT,
+        messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error((e.error && e.error.message) || 'Claude error ' + res.status);
+    }
+    const d = await res.json();
+    return parseJSON(d.content[0].text);
+  }
+
+  if (AI_PROVIDER === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_KEY },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: 400,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT_TEXT },
+          { role: 'user',   content: userMsg }
+        ]
+      })
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error((e.error && e.error.message) || 'OpenAI error ' + res.status);
+    }
+    const d = await res.json();
+    return parseJSON(d.choices[0].message.content);
+  }
+
+  if (AI_PROVIDER === 'gemini') {
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + AI_KEY,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT_TEXT }] },
+          contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+          generationConfig: { maxOutputTokens: 400 }
+        })
+      }
+    );
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error((e.error && e.error.message) || 'Gemini error ' + res.status);
+    }
+    const d = await res.json();
+    return parseJSON(d.candidates[0].content.parts[0].text);
+  }
+
+  throw new Error('Unknown provider: ' + AI_PROVIDER + ' — must be claude, openai, or gemini');
+}
+
+function parseJSON(raw) {
+  try {
+    return JSON.parse(raw.replace(/```json/g,'').replace(/```/g,'').trim());
+  } catch(_) {
+    return { score:2, raj_reaction:'Hmm.', coach_feedback:'Could not parse response. Try again.' };
+  }
+}
+
+// ── CHARACTER ANIMATION ENGINE ───────────────────────────────────────────
+const chars = {
+  raj:   { wrap: null, svg: null, mouth: null, browL: null, browR: null },
+  coach: { wrap: null, svg: null, mouth: null },
+  you:   { wrap: null, svg: null, mouth: null }
+};
+
+let lipIntervals = {};
+let activeStates = { raj:'idle', coach:'idle', you:'idle' };
+
+function initChars(){
+  chars.raj.wrap  = document.getElementById('char-raj');
+  chars.raj.svg   = document.getElementById('svg-raj');
+  chars.raj.mouth = document.getElementById('raj-mouth');
+  chars.raj.browL = document.getElementById('raj-brow-l');
+  chars.raj.browR = document.getElementById('raj-brow-r');
+  chars.coach.wrap  = document.getElementById('char-coach');
+  chars.coach.svg   = document.getElementById('svg-coach');
+  chars.coach.mouth = document.getElementById('coach-mouth');
+  chars.you.wrap  = document.getElementById('char-you');
+  chars.you.svg   = document.getElementById('svg-you');
+  chars.you.mouth = document.getElementById('you-mouth');
+}
+
+// Mouth paths per character per state
+const MOUTHS = {
+  raj: {
+    stern:   'M38 74 Q50 71 62 74',   // default: flat/down
+    neutral: 'M38 74 Q50 75 62 74',   // slight lift
+    pleased: 'M38 73 Q50 80 62 73',   // smile
+    speaking:'M38 73 Q50 79 62 73',
+    open:    'M38 71 Q50 82 62 71',
+  },
+  coach: {
+    default: 'M38 73 Q50 80 62 73',
+    open:    'M38 71 Q50 84 62 71',
+  },
+  you: {
+    default: 'M39 73 Q50 77 61 73',
+    open:    'M39 71 Q50 80 61 71',
+    smile:   'M39 72 Q50 80 61 72',
+  }
+};
+
+// Update Raj's brow heaviness based on score (stern at low, relaxed at high)
+function updateRajEmotion(s){
+  const r = chars.raj;
+  if(!r.browL) return;
+  // score 20→100: brow angle goes from steep (-12) to flat (-3)
+  const t = (s - 20) / 80; // 0..1
+  const angleL = -12 + t * 9;
+  const angleR = 12 - t * 9;
+  r.browL.setAttribute('transform', `rotate(${angleL},37,38)`);
+  r.browR.setAttribute('transform', `rotate(${angleR},63,38)`);
+  // mouth: stern → neutral → pleased
+  const mPath = s < 40 ? MOUTHS.raj.stern : s < 70 ? MOUTHS.raj.neutral : MOUTHS.raj.pleased;
+  if(!lipIntervals.raj) r.mouth.setAttribute('d', mPath);
+}
+
+function setState(charId, state){
+  const c = chars[charId];
+  if(!c || !c.svg) return;
+  activeStates[charId] = state;
+  c.svg.classList.remove('thinking','speaking','reacting');
+  if(state === 'thinking') c.svg.classList.add('thinking');
+  if(state === 'speaking') startLip(charId);
+  else stopLip(charId);
+}
+
+function startLip(charId){
+  stopLip(charId);
+  const c = chars[charId];
+  if(!c.mouth) return;
+  let open = false;
+  const mOpen  = charId==='raj' ? MOUTHS.raj.open  : charId==='coach' ? MOUTHS.coach.open  : MOUTHS.you.open;
+  const mClose = charId==='raj' ? MOUTHS.raj.speaking : charId==='coach' ? MOUTHS.coach.default : MOUTHS.you.default;
+  lipIntervals[charId] = setInterval(()=>{
+    open = !open;
+    c.mouth.setAttribute('d', open ? mOpen : mClose);
+  }, 220);
+}
+
+function stopLip(charId){
+  if(lipIntervals[charId]){ clearInterval(lipIntervals[charId]); delete lipIntervals[charId]; }
+  // reset mouth
+  const c = chars[charId];
+  if(!c.mouth) return;
+  if(charId==='raj') c.mouth.setAttribute('d', MOUTHS.raj.stern);
+  else if(charId==='coach') c.mouth.setAttribute('d', MOUTHS.coach.default);
+  else c.mouth.setAttribute('d', MOUTHS.you.default);
+}
+
+function reactChar(charId, score){
+  const c = chars[charId];
+  if(!c||!c.svg) return;
+  stopLip(charId);
+  c.svg.classList.add('reacting');
+  setTimeout(()=> c.svg.classList.remove('reacting'), 600);
+  if(charId==='raj'){
+    const mp = score>=3 ? MOUTHS.raj.pleased : score===2 ? MOUTHS.raj.neutral : MOUTHS.raj.stern;
+    c.mouth.setAttribute('d', mp);
+  } else if(charId==='you'){
+    c.mouth.setAttribute('d', score>=3 ? MOUTHS.you.smile : MOUTHS.you.default);
+  }
+}
+
+function showCoach(show){
+  const slot = chars.coach.wrap;
+  if(!slot) return;
+  slot.classList.toggle('hidden', !show);
+  slot.classList.toggle('visible', show);
+}
+
+// ── SCENES ────────────────────────────────────────────────────────────────
+const SCENES = [
+  { id:1, act:"Act 1 · The Slide Dump",
+    context:{ icon:"✉", label:"Email — Monday 9:14 AM", detail:"Day 1. You've sent Raj a detailed kickoff email." },
+    messages:[
+      { from:"raj", name:"Raj Mehta", text:"Sure. I'll send you my slides. There are about 200 of them — the content is all there, you just need to clean them up and make them look nice." },
+      { from:"narrator", text:"You open the attachment. 214 slides. Dense text, no structure. No learning objectives anywhere." }
+    ],
+    prompt:"How do you respond to Raj's email?",
+    rajSaid:"Sure. I'll send you my slides. There are about 200 of them — the content is all there, you just need to clean them up and make them look nice.",
+    sceneContext:"Day 1. Raj sees the ID as a formatter. He just sent 214 dense slides with no learning objectives. The ID needs to establish their role and anchor the project to outcomes without confrontation.",
+    scoreGain:12 },
+  { id:2, act:"Act 1 · The Slide Dump",
+    context:{ icon:"📹", label:"Video call — Wednesday 2:00 PM", detail:"Kickoff call with Raj. He joins 8 minutes late." },
+    messages:[
+      { from:"raj", name:"Raj Mehta", text:"Okay so I've got about 20 minutes. What did you want to cover? The slides are all there, everything the learners need to know is in them." },
+      { from:"narrator", text:"You need to shift from 'what content exists' to 'what learners need to do'. Raj seems impatient." }
+    ],
+    prompt:"How do you open this conversation?",
+    rajSaid:"Okay so I've got about 20 minutes. What did you want to cover? The slides are all there, everything the learners need to know is in them.",
+    sceneContext:"First video call. Raj is impatient, has 20 minutes, sees slides as sufficient. The ID needs to open in a way that shifts from content to outcomes without triggering defensiveness.",
+    scoreGain:10 },
+  { id:3, act:"Act 1 · The Slide Dump",
+    context:{ icon:"📹", label:"Same call — 12 minutes in", detail:"Raj has been talking enthusiastically. You've barely got a word in." },
+    messages:[
+      { from:"raj", name:"Raj Mehta", text:"...and that's why the regulatory piece is so critical. I can walk you through the whole background — it'll take maybe another hour but it's important context." },
+      { from:"narrator", text:"You have 8 minutes left. Structure, timeline, and your role haven't come up once." }
+    ],
+    prompt:"What do you say or do right now?",
+    rajSaid:"I can walk you through the whole regulatory background — it'll take maybe another hour but it's important context.",
+    sceneContext:"Raj has monologued for 12 minutes. 8 minutes remain. The ID needs to redirect without dismissing his expertise or damaging fragile rapport.",
+    scoreGain:10 },
+  { id:4, act:"Act 2 · The Credentials Challenge",
+    context:{ icon:"📹", label:"Stakeholder review call — the following week", detail:"You, Raj, and two senior stakeholders review your proposed 5-module structure." },
+    messages:[
+      { from:"raj", name:"Raj Mehta", text:"I mean, it's fine as a starting point. But honestly — these instructional design frameworks don't always translate to technical domains. No offence, but do you actually have a background in compliance?" },
+      { from:"narrator", text:"The stakeholders are watching. A public challenge to your credibility." }
+    ],
+    prompt:"How do you respond — with stakeholders watching?",
+    rajSaid:"These instructional design frameworks don't always translate to technical domains. No offence, but do you actually have a background in compliance?",
+    sceneContext:"Raj has publicly challenged the ID's credibility in front of two senior stakeholders. The ID must respond confidently but not aggressively — asserting value without making Raj an enemy.",
+    scoreGain:12 },
+  { id:5, act:"Act 2 · The Credentials Challenge",
+    context:{ icon:"✉", label:"Email — that evening", detail:"Stakeholders said nothing during Raj's challenge. The tension is unresolved." },
+    messages:[
+      { from:"narrator", text:"You need to follow up. Do you address the tension directly, document it upward, or move forward professionally as if nothing happened?" }
+    ],
+    prompt:"What do you write to Raj?",
+    rajSaid:"(silence — no follow-up from Raj after the public credentials challenge)",
+    sceneContext:"The credentials challenge happened today. Stakeholders stayed neutral. The ID must follow up — address the tension directly, escalate, or move forward? Must avoid both conflict avoidance and power plays.",
+    scoreGain:10 },
+  { id:6, act:"Act 2 · The Credentials Challenge",
+    context:{ icon:"📹", label:"1:1 with Raj — two days later", detail:"Raj agreed to a call. He's less guarded than usual. Then he says something unexpected." },
+    messages:[
+      { from:"raj", name:"Raj Mehta", text:"Look, I'll be straight with you. I've been through these training projects before and they always end up a waste of time. We build something, people click through it, nothing changes." },
+      { from:"narrator", text:"This is the real Raj. Under the dismissiveness is genuine frustration with bad e-learning. This is a turning point." }
+    ],
+    prompt:"How do you respond to this?",
+    rajSaid:"I've been through these training projects before and they always end up a waste of time. We build something, people click through it, nothing changes.",
+    sceneContext:"Turning point. Raj has revealed his dismissiveness isn't personal — it's frustration with ineffective e-learning. The ID can align goals and reframe their rigour as the solution to his actual problem.",
+    scoreGain:14 },
+  { id:7, act:"Act 3 · The Deadline Ghost",
+    context:{ icon:"✉", label:"Review cycle — three weeks later", detail:"Module 1 draft has been with Raj for 10 days. Review was due Friday. Nothing." },
+    messages:[
+      { from:"narrator", text:"You've sent one polite nudge. Still silence. Project timeline is at genuine risk. Sponsor call is next week." }
+    ],
+    prompt:"What do you do before the sponsor call?",
+    rajSaid:"(silence — no response to the module draft or the reminder)",
+    sceneContext:"Raj has gone silent. Module 1 review is 10 days overdue. One reminder sent. A sponsor call is next week. How firm to be with Raj versus how quickly to escalate to the sponsor.",
+    scoreGain:10 },
+  { id:8, act:"Act 3 · The Deadline Ghost",
+    context:{ icon:"📹", label:"Emergency call — Thursday afternoon", detail:"Raj responds within an hour. His team has been managing a serious system incident all week." },
+    messages:[
+      { from:"raj", name:"Raj Mehta", text:"I'm sorry — I should have messaged you. It's been a nightmare. I haven't even opened the document. Can we push the whole review cycle by two weeks? I'll give it proper attention, I promise." },
+      { from:"narrator", text:"You have buffer. He's genuine. But two weeks is significant — and 'proper attention' has been promised before." }
+    ],
+    prompt:"How do you respond to the two-week request?",
+    rajSaid:"I'm sorry, it's been a nightmare. I haven't even opened the document. Can we push everything by two weeks? I'll give it proper attention, I promise.",
+    sceneContext:"Raj has a legitimate reason — a real work crisis. He's genuine and apologetic. The ID needs to be compassionate without being a pushover, and solve the structural problem (async reviews deprioritised) not just the timeline.",
+    scoreGain:10 },
+  { id:9, act:"Act 3 · The Deadline Ghost",
+    context:{ icon:"📹", label:"Final review call — project close", detail:"The course is done. Joint reviews worked. Raj has been genuinely engaged. At the end of the call, unprompted, he says something unexpected." },
+    messages:[
+      { from:"raj", name:"Raj Mehta", text:"I have to say — this is a lot better than I thought it would be. The structure actually makes sense. I still think we cut some content I'd have kept, but... I get why." },
+      { from:"narrator", text:"For Raj, this is high praise. How you receive it sets the tone for any future collaboration." }
+    ],
+    prompt:"What do you say in response?",
+    rajSaid:"This is a lot better than I thought it would be. The structure makes sense. I still think we cut some content I'd have kept, but I get why.",
+    sceneContext:"Final call. Raj has given the ID genuine unsolicited praise. The ID's response determines whether this becomes a long-term relationship. Best response gives Raj co-ownership without sycophancy.",
+    scoreGain:12 }
+];
+
+const ENDINGS = {
+  high:{ title:"A genuine collaborator", subtitle:"Raj messages the day after launch: 'People are actually reading the notes section. First time that's happened.'", narrative:"You navigated every friction point with precision — asserting your role without aggression, redirecting Raj's energy without dismissing it, and holding boundaries without breaking trust. What started as a hostile dynamic became a real working partnership.", tips:["Anchoring early conversations to outcomes establishes you as a designer, not a formatter.","Public challenges are best met with confident boundary-setting, not credential-listing.","Changing the format (async → joint call) often solves more than changing the deadline.","Specific credit lands harder than generic thanks — name what they contributed."], color:{ bg:"var(--green-light)", border:"var(--green)", text:"var(--green)" } },
+  mid:{ title:"Grudging respect", subtitle:"Raj wouldn't ask for you — but he wouldn't block you either.", narrative:"The project is complete and the course is solid. You navigated most friction professionally, though a few moments where you played it too safe or pushed too hard left Raj with an impression of you as competent but not essential.", tips:["When a SME reveals real frustration, that's a turning point — treat it as one.","Neutral follow-ups after tense moments miss the opportunity to reset the dynamic.","Framing your process as the solution to their problem is more powerful than defending credentials."], color:{ bg:"var(--yellow-light)", border:"var(--yellow)", text:"var(--yellow)" } },
+  low:{ title:"Project complete. Relationship: complicated.", subtitle:"The course shipped. Raj has already moved on.", narrative:"The project got done, but it was a grind. Several moments where a strategic response could have shifted the dynamic were missed. The good news: every difficult SME is a learning experience, and these patterns are learnable.", tips:["Dismissive SMEs often have a legitimate frustration underneath — find it early.","Avoid escalating before you've had a direct, firm conversation.","The first public challenge to your credentials is the most important one to handle well."], color:{ bg:"var(--red-light)", border:"var(--red)", text:"var(--red)" } }
+};
+
+let currentScene = 0;
+let score = 20;
+
+function getScoreColor(s){ return s<40?'#C94040':s<65?'#B87A1A':'#2D7A4F'; }
+function getScoreLabel(s){ return s<40?'Tense — keep working at it':s<65?'Warming up — good progress':s<80?'Strong — nearly there':'Excellent collaboration'; }
+
+function updateScore(delta){
+  score = Math.max(10, Math.min(100, score+delta));
+  const fill = document.getElementById('score-fill');
+  const text = document.getElementById('score-text');
+  fill.style.width = score+'%';
+  fill.style.background = getScoreColor(score);
+  text.textContent = score+' / 100 — '+getScoreLabel(score);
+  fill.classList.remove('score-bump');
+  void fill.offsetWidth;
+  fill.classList.add('score-bump');
+  updateRajEmotion(score);
+}
+
+function makeMsg(msg){
+  const el = document.createElement('div');
+  if(msg.from==='narrator'){
+    el.className='narrator'; el.textContent=msg.text;
+  } else {
+    el.className='message';
+    const isRaj=msg.from==='raj', isCoach=msg.from==='coach';
+    const avClass=isRaj?'raj':isCoach?'coach-av':'you-av';
+    const avTxt=isRaj?'RM':isCoach?'Coach':'You';
+    const bClass=isRaj?'raj-b':isCoach?'coach-b':'you-b';
+    const nm=msg.name||(isCoach?'Learning Coach':'You');
+    el.innerHTML=`<div class="av ${avClass}">${avTxt}</div>
+      <div class="bw"><div class="sname">${nm}</div>
+      <div class="bubble ${bClass}" ${msg.bid?'id="'+msg.bid+'"':''}>${msg.text||''}</div></div>`;
+  }
+  return el;
+}
+
+function renderScene(index){
+  const scene = SCENES[index];
+  document.getElementById('act-badge').textContent = scene.act;
+  const container = document.getElementById('scene-container');
+  container.innerHTML = '';
+  showCoach(false);
+
+  // reset character states
+  setState('raj','idle'); setState('you','idle');
+  updateRajEmotion(score);
+
+  const card = document.createElement('div');
+  card.className = 'scene-card';
+
+  const ctx = document.createElement('div');
+  ctx.className='scene-context';
+  ctx.innerHTML=`<div class="ctx-icon">${scene.context.icon}</div><div class="ctx-text"><strong>${scene.context.label}</strong> — ${scene.context.detail}</div>`;
+  card.appendChild(ctx);
+
+  const chat = document.createElement('div');
+  chat.className='chat-area'; chat.id='chat-area';
+
+  // animate Raj speaking as messages appear
+  scene.messages.forEach((m,i)=>{
+    setTimeout(()=>{
+      const el = makeMsg(m);
+      chat.appendChild(el);
+      if(m.from==='raj'){ setState('raj','speaking'); setTimeout(()=>setState('raj','idle'), m.text.length*28); }
+    }, i*400);
+  });
+  card.appendChild(chat);
+
+  // input area
+  const inputArea = document.createElement('div');
+  inputArea.className='input-area'; inputArea.id='input-area';
+  inputArea.innerHTML=`
+    <div class="input-prompt" id="input-label">Your response — <span>type what you would say or do</span></div>
+    <textarea id="response-ta" placeholder="${scene.prompt}"></textarea>
+    <div class="input-row">
+      <span class="char-hint" id="char-hint">Ctrl+Enter to send</span>
+      <button class="send-btn" id="send-btn">Send ↗</button>
+    </div>`;
+  card.appendChild(inputArea);
+
+  const retryLabel = document.createElement('div');
+  retryLabel.className='retry-label'; retryLabel.id='retry-label';
+  retryLabel.textContent="Reflect on the coach's feedback and try a different approach.";
+  card.appendChild(retryLabel);
+
+  const continueBtn = document.createElement('button');
+  continueBtn.className='continue-btn'; continueBtn.id='continue-btn';
+  continueBtn.textContent = index<SCENES.length-1 ? 'Continue to next scene →' : 'See your result →';
+  continueBtn.addEventListener('click',()=>{
+    if(index<SCENES.length-1){ currentScene++; renderScene(currentScene); }
+    else { renderEnding(); }
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  card.appendChild(continueBtn);
+  container.appendChild(card);
+
+  const ta=document.getElementById('response-ta');
+  const btn=document.getElementById('send-btn');
+  const hint=document.getElementById('char-hint');
+  ta.addEventListener('input',()=>{ hint.textContent=ta.value.trim().length<10?'Keep going…':ta.value.trim().length+' characters'; });
+  ta.addEventListener('keydown',e=>{ if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)) btn.click(); });
+  btn.addEventListener('click',()=> handleSubmit(scene,chat,ta,btn,retryLabel,continueBtn));
+}
+
+let bubbleCounter = 0;
+
+async function handleSubmit(scene,chat,ta,btn,retryLabel,continueBtn){
+  const text = ta.value.trim();
+  if(text.length<5){ ta.focus(); return; }
+
+  // unique IDs for this attempt — avoids clashes on retry
+  bubbleCounter++;
+  const rajBid   = 'raj-bubble-'   + bubbleCounter;
+  const coachBid = 'coach-bubble-' + bubbleCounter;
+
+  // learner bubble + You character speaks
+  chat.appendChild(makeMsg({from:'you', text}));
+  setState('you','speaking');
+  // You face: neutral while speaking
+  if(chars.you.mouth) chars.you.mouth.setAttribute('d', MOUTHS.you.open);
+  setTimeout(()=>{ setState('you','idle'); if(chars.you.mouth) chars.you.mouth.setAttribute('d', MOUTHS.you.default); }, 1200);
+
+  ta.value=''; ta.disabled=true; btn.disabled=true;
+  document.getElementById('input-label').innerHTML='Waiting for response…';
+
+  // Raj and Coach thinking
+  setState('raj','thinking');
+  showCoach(true);
+  setState('coach','thinking');
+
+  // placeholder bubbles with unique IDs
+  const rajEl=makeMsg({from:'raj',name:'Raj Mehta',bid:rajBid,text:''});
+  chat.appendChild(rajEl);
+  document.getElementById(rajBid).innerHTML='<span class="tdot"></span>';
+
+  const coachEl=makeMsg({from:'coach',bid:coachBid,text:''});
+  chat.appendChild(coachEl);
+  document.getElementById(coachBid).innerHTML='<span class="tdot"></span>';
+  chat.lastChild.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+  let parsed={score:1,raj_reaction:'...',coach_feedback:'Could not parse response.'};
+  try{
+    parsed = await callAI(scene, text);
+    setState('raj','idle');
+    setState('coach','speaking');
+    setTimeout(()=>setState('coach','idle'), 1200);
+  } catch(err){
+    setState('raj','idle'); setState('coach','idle');
+    document.getElementById(rajBid).textContent='Could not reach the AI.';
+    document.getElementById(coachBid).textContent= err.message.includes('No API key')
+      ? 'Click the ⚙ settings button at the top to choose your AI provider and enter your API key.'
+      : 'Error: ' + err.message;
+    ta.disabled=false; btn.disabled=false;
+    document.getElementById('input-label').innerHTML='Your response — <span>try again</span>';
+    return;
+  }
+
+  const s=parseInt(parsed.score)||1;
+
+  // Raj reacts — face changes based on score
+  reactChar('raj', s);
+  setState('raj','speaking');
+  document.getElementById(rajBid).textContent=parsed.raj_reaction||'...';
+  setTimeout(()=>setState('raj','idle'), (parsed.raj_reaction||'').length*30+500);
+
+  // Coach feedback appears
+  document.getElementById(coachBid).textContent=parsed.coach_feedback||'';
+
+  // You reacts — smile on success, concerned on fail
+  if(s>=3){
+    if(chars.you.mouth) chars.you.mouth.setAttribute('d', MOUTHS.you.smile);
+    if(chars.you.svg){
+      // lift You's brows slightly — pleased
+      const youBrowL = chars.you.svg.querySelector('.brow-l');
+      const youBrowR = chars.you.svg.querySelector('.brow-r');
+      if(youBrowL) youBrowL.setAttribute('d','M27 37 Q36 33 44 37');
+      if(youBrowR) youBrowR.setAttribute('d','M56 37 Q64 33 73 37');
+    }
+  } else if(s===1){
+    if(chars.you.mouth) chars.you.mouth.setAttribute('d','M39 75 Q50 73 61 75');
+    if(chars.you.svg){
+      // furrow You's brows — concerned
+      const youBrowL = chars.you.svg.querySelector('.brow-l');
+      const youBrowR = chars.you.svg.querySelector('.brow-r');
+      if(youBrowL) youBrowL.setAttribute('d','M27 41 Q36 38 44 41');
+      if(youBrowR) youBrowR.setAttribute('d','M56 41 Q64 38 73 41');
+    }
+  } else {
+    // score 2 — neutral
+    if(chars.you.mouth) chars.you.mouth.setAttribute('d', MOUTHS.you.default);
+  }
+
+  // score update
+  if(s>=3)       updateScore(scene.scoreGain);
+  else if(s===2) updateScore(Math.round(scene.scoreGain*0.35));
+  else           updateScore(-2);
+
+  if(s>=3){
+    document.getElementById('input-area').style.display='none';
+    continueBtn.classList.add('show');
+    setTimeout(()=>showCoach(false), 2000);
+  } else {
+    retryLabel.classList.add('show');
+    document.getElementById('input-label').innerHTML="Try again — <span>use the coach's guidance above</span>";
+    ta.disabled=false; btn.disabled=false; ta.focus();
+  }
+  chat.lastChild.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderEnding(){
+  const e=score>=80?ENDINGS.high:score>=50?ENDINGS.mid:ENDINGS.low;
+  window.parent.postMessage({type:'complete'},'*');
+  document.getElementById('act-badge').textContent='Scenario complete';
+
+  // final stage — all three visible, Raj smiling if high score
+  showCoach(true);
+  if(score>=80){ setState('raj','idle'); updateRajEmotion(100); }
+
+  const container=document.getElementById('scene-container');
+  container.innerHTML='';
+  const cs=`background:${e.color.bg};border-color:${e.color.border};color:${e.color.text}`;
+  const end=document.createElement('div');
+  end.className='end-screen';
+  end.innerHTML=`
+    <div class="end-header">
+      <div class="end-circle" style="${cs}">${score}</div>
+      <div class="end-title">${e.title}</div>
+      <div class="end-sub">${e.subtitle}</div>
+    </div>
+    <div class="end-body">
+      <div class="end-st">What happened</div>
+      <div class="end-narr">${e.narrative}</div>
+      <div class="end-tips"><h4>Key takeaways</h4>${e.tips.map(t=>`<div class="end-tip"><div class="tip-dot"></div><span>${t}</span></div>`).join('')}</div>
+    </div>
+    <button class="restart-btn" id="restart-btn">↺ Start over</button>`;
+  container.appendChild(end);
+  document.getElementById('restart-btn').addEventListener('click',()=>{
+    score=20; currentScene=0;
+    document.getElementById('score-fill').style.cssText='width:20%;background:#C94040';
+    document.getElementById('score-text').textContent='20 / 100 — Getting started';
+    showCoach(false);
+    renderScene(0);
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+initChars();
+updateRajEmotion(score);
+renderScene(0);
+</script>
+</body>
+</html>
