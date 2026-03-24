@@ -233,6 +233,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 .summary-act-name{color:var(--accent);font-weight:600;margin-right:.3rem}
 .summary-actions{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:.5rem}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -748,9 +749,9 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
     <div class="panel" id="panel-export">
       <div class="panel-header">
         <div class="panel-title">Preview &amp; <em>Export</em></div>
-        <div class="panel-sub">Generate your scenario, preview it live, then download for Rise or Storyline.</div>
+        <div class="panel-sub">Test your scenario live, then download it ready for Rise 360 or Storyline 360.</div>
       </div>
-      <div class="export-grid">
+      <div class="export-grid" style="grid-template-columns:1fr 1fr 1fr">
         <div class="export-card">
           <div class="export-card-icon">👁</div>
           <div class="export-card-title">Live Preview</div>
@@ -759,10 +760,20 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
         </div>
         <div class="export-card">
           <div class="export-card-icon">📦</div>
-          <div class="export-card-title">Download HTML</div>
-          <div class="export-card-desc">Single index.html file. Zip it yourself and upload to Rise's code block.</div>
-          <button class="btn btn-primary btn-full" onclick="downloadHTML()">Download HTML</button>
+          <div class="export-card-title">Download ZIP</div>
+          <div class="export-card-desc">Ready-to-upload ZIP for Rise 360. Just open Rise, add a Code block, and upload this file.</div>
+          <button class="btn btn-primary btn-full" id="zip-btn" onclick="downloadZIP()">⬇ Download ZIP for Rise</button>
         </div>
+        <div class="export-card">
+          <div class="export-card-icon">🖥</div>
+          <div class="export-card-title">Download HTML</div>
+          <div class="export-card-desc">Raw HTML file for Storyline web objects or self-hosting on GitHub Pages.</div>
+          <button class="btn btn-ghost btn-full" onclick="downloadHTML()">Download HTML</button>
+        </div>
+      </div>
+      <div class="tip-box" style="margin-top:1rem">
+        <strong>Rise 360:</strong> Download ZIP → In Rise add a Code block → Upload the ZIP file → Done.<br>
+        <strong>Storyline 360:</strong> Download HTML → host on GitHub Pages → Insert as Web Object using the https:// URL.
       </div>
       <iframe id="preview-frame" class="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
@@ -1948,6 +1959,47 @@ function downloadHTML(){
   a.href = URL.createObjectURL(blob);
   a.download = (gv('s-title')||'scenario').replace(/\s+/g,'-').toLowerCase()+'.html';
   a.click();
+}
+
+async function downloadZIP(){
+  const btn = document.getElementById('zip-btn');
+  btn.disabled = true;
+  btn.textContent = 'Building ZIP…';
+  try {
+    const html = generateHTML();
+    const zip = new JSZip();
+    zip.file('index.html', html);
+    const blob = await zip.generateAsync({ type:'blob', compression:'DEFLATE' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (gv('s-title')||'scenario').replace(/\s+/g,'-').toLowerCase()+'.zip';
+    a.click();
+  } catch(e) {
+    alert('Could not generate ZIP: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = '⬇ Download ZIP for Rise';
+}
+
+async function downloadZIP(){
+  const btn = document.getElementById('zip-btn');
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Preparing ZIP…';
+  try {
+    const html = generateHTML();
+    const zip  = new JSZip();
+    zip.file('index.html', html);
+    const blob = await zip.generateAsync({ type:'blob', compression:'DEFLATE' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (gv('s-title')||'scenario').replace(/\s+/g,'-').toLowerCase()+'.zip';
+    a.click();
+  } catch(err) {
+    alert('Could not create ZIP: ' + err.message);
+  }
+  btn.disabled = false;
+  btn.textContent = orig;
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
