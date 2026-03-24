@@ -799,7 +799,7 @@ async function apiFetch(provider, key, body, maxTokens) {
     headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key };
     payload = Object.assign({ max_tokens: maxTokens }, body);
   } else if (provider === 'gemini') {
-    const model = maxTokens >= 2000 ? 'gemini-1.5-pro' : 'gemini-1.5-flash';
+    const model = 'gemini-2.0-flash';
     url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
     headers = { 'Content-Type': 'application/json' };
     payload = Object.assign({ generationConfig: { maxOutputTokens: maxTokens } }, body);
@@ -1817,7 +1817,7 @@ async function callAI(scene,text){
     const d=await r.json();return parseJ(d.choices[0].message.content);
   }
   if(AI_PROVIDER==='gemini'){
-    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+AI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_PROMPT}]},contents:[{role:'user',parts:[{text:msg}]}],generationConfig:{maxOutputTokens:400}})});
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+AI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_PROMPT}]},contents:[{role:'user',parts:[{text:msg}]}],generationConfig:{maxOutputTokens:400}})});
     const d=await r.json();return parseJ(d.candidates[0].content.parts[0].text);
   }
 }
