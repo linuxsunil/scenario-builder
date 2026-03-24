@@ -8,14 +8,14 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0F0F10;--surface:#18181B;--surface2:#222226;--surface3:#2A2A2F;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-  --text:#F2F0EB;--text2:#A8A49E;--text3:#6B6762;
-  --accent:#E8C547;--accent2:#D4A830;
-  --green:#4ADE80;--green-bg:rgba(74,222,128,0.1);
-  --red:#F87171;--red-bg:rgba(248,113,113,0.1);
-  --blue:#60A5FA;--blue-bg:rgba(96,165,250,0.1);
-  --amber:#FBBF24;--amber-bg:rgba(251,191,36,0.1);
+  --bg:#F4F2EE;--surface:#FFFFFF;--surface2:#F0EDE8;--surface3:#E8E4DE;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --text:#1A1814;--text2:#5A564F;--text3:#9B9890;
+  --accent:#B8860B;--accent2:#8B6508;
+  --green:#16A34A;--green-bg:rgba(22,163,74,0.08);
+  --red:#DC2626;--red-bg:rgba(220,38,38,0.08);
+  --blue:#2563EB;--blue-bg:rgba(37,99,235,0.08);
+  --amber:#D97706;--amber-bg:rgba(217,119,6,0.08);
   --fd:'Fraunces',Georgia,serif;
   --fb:'Plus Jakarta Sans',system-ui,sans-serif;
   --r:10px;--rs:6px;
@@ -36,17 +36,17 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100
 .nav-section-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:.5rem .75rem .25rem}
 .nav-item{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:var(--rs);cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;margin:1px 0}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:rgba(232,197,71,.1);color:var(--accent)}
+.nav-item.active{background:rgba(184,134,11,.1);color:var(--accent)}
 .nav-item .nav-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--surface3);flex-shrink:0}
-.nav-item.active .nav-icon{background:rgba(232,197,71,.2)}
+.nav-item.active .nav-icon{background:rgba(184,134,11,.15)}
 .nav-item .nav-badge{margin-left:auto;font-size:10px;background:var(--surface3);color:var(--text3);padding:1px 6px;border-radius:10px}
-.nav-item.active .nav-badge{background:rgba(232,197,71,.15);color:var(--accent)}
+.nav-item.active .nav-badge{background:rgba(184,134,11,.12);color:var(--accent)}
 .nav-divider{height:1px;background:var(--border);margin:.5rem .75rem}
 
 /* template library sidebar items */
 .tpl-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .75rem;border-radius:var(--rs);cursor:pointer;font-size:12px;color:var(--text3);transition:all .15s;margin:1px 0}
 .tpl-item:hover{background:var(--surface2);color:var(--text2)}
-.tpl-item.loaded{color:var(--accent);background:rgba(232,197,71,.06)}
+.tpl-item.loaded{color:var(--accent);background:rgba(184,134,11,.06)}
 .tpl-dot{width:6px;height:6px;border-radius:50%;background:var(--surface3);flex-shrink:0}
 .tpl-item.loaded .tpl-dot{background:var(--accent)}
 
@@ -79,7 +79,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:var(--rs);font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;white-space:nowrap}
-.btn-primary{background:var(--accent);color:#0F0F10;font-weight:600}
+.btn-primary{background:var(--accent);color:#FFFFFF;font-weight:600}
 .btn-primary:hover{background:var(--accent2)}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
 .btn-ghost:hover{background:var(--surface2);color:var(--text)}
@@ -99,14 +99,14 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 /* ── TEMPLATE GRID ── */
 .tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;margin-bottom:1.5rem}
 .tpl-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.1rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.tpl-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(232,197,71,.03));pointer-events:none}
+.tpl-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(184,134,11,.03));pointer-events:none}
 .tpl-card:hover{border-color:var(--border2);transform:translateY(-1px)}
-.tpl-card.selected{border-color:var(--accent);background:rgba(232,197,71,.04)}
+.tpl-card.selected{border-color:var(--accent);background:rgba(184,134,11,.04)}
 .tpl-card-icon{font-size:1.6rem;margin-bottom:.6rem}
 .tpl-card-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:.3rem}
 .tpl-card-desc{font-size:11.5px;color:var(--text3);line-height:1.5}
 .tpl-card-tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-top:.5rem;background:var(--surface3);color:var(--text3)}
-.tpl-card.selected .tpl-card-tag{background:rgba(232,197,71,.15);color:var(--accent)}
+.tpl-card.selected .tpl-card-tag{background:rgba(184,134,11,.15);color:var(--accent)}
 
 /* ── ACTS & SCENES ── */
 .act-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:1rem;overflow:hidden}
@@ -122,9 +122,9 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 .scene-del{margin-left:auto;opacity:.4;transition:opacity .15s}
 .scene-del:hover{opacity:1}
 .add-scene-btn{display:flex;align-items:center;gap:.4rem;padding:.5rem .75rem;background:transparent;border:1px dashed var(--border2);border-radius:var(--rs);color:var(--text3);font-size:12px;cursor:pointer;width:100%;justify-content:center;transition:all .15s;margin-top:.25rem}
-.add-scene-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.04)}
+.add-scene-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(184,134,11,.04)}
 .add-act-btn{display:flex;align-items:center;gap:.4rem;padding:.65rem 1rem;background:transparent;border:1.5px dashed var(--border2);border-radius:var(--r);color:var(--text3);font-size:13px;cursor:pointer;width:100%;justify-content:center;transition:all .15s;margin-top:.5rem}
-.add-act-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.04)}
+.add-act-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(184,134,11,.04)}
 
 /* ── CHARACTER APPEARANCE ── */
 .char-preview{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1rem;background:var(--surface3);border-radius:var(--r);border:1px solid var(--border)}
@@ -135,7 +135,7 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 .swatch:hover,.swatch.selected{border-color:var(--accent);transform:scale(1.1)}
 .emotion-arc{display:flex;gap:.4rem;align-items:center}
 .emotion-btn{padding:.35rem .7rem;border-radius:var(--rs);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s}
-.emotion-btn.selected{background:rgba(232,197,71,.1);border-color:var(--accent);color:var(--accent)}
+.emotion-btn.selected{background:rgba(184,134,11,.1);border-color:var(--accent);color:var(--accent)}
 
 /* ── SMART FEATURES ── */
 .smart-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem}
@@ -193,14 +193,14 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 
 /* ── MISC ── */
 .section-divider{height:1px;background:var(--border);margin:1.5rem 0}
-.tip-box{background:rgba(232,197,71,.06);border:1px solid rgba(232,197,71,.15);border-radius:var(--rs);padding:.75rem 1rem;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1.25rem}
+.tip-box{background:rgba(184,134,11,.06);border:1px solid rgba(184,134,11,.15);border-radius:var(--rs);padding:.75rem 1rem;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1.25rem}
 .tip-box strong{color:var(--accent)}
 .loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .row-actions{display:flex;align-items:center;gap:.5rem;margin-top:1rem}
 .inspiration-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}
 .chip{padding:.35rem .8rem;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s;white-space:nowrap}
-.chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.06)}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(184,134,11,.06)}
 .gen-form{display:flex;flex-direction:column;gap:1rem}
 .gen-field{display:flex;flex-direction:column;gap:.4rem}
 .gen-field label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3)}
@@ -216,10 +216,10 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 .gen-loading-title{font-family:var(--fd);font-size:1.3rem;color:var(--text);font-style:italic}
 .gen-loading-sub{font-size:13px;color:var(--text3);max-width:340px;line-height:1.6}
 .gen-step{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:.25rem}
-.summary-card{display:none;background:var(--surface);border:1.5px solid rgba(232,197,71,.3);border-radius:var(--r);overflow:hidden}
+.summary-card{display:none;background:var(--surface);border:1.5px solid rgba(184,134,11,.3);border-radius:var(--r);overflow:hidden}
 .summary-card.show{display:block;animation:fadeUpS .4s ease}
 @keyframes fadeUpS{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.summary-header{background:rgba(232,197,71,.08);border-bottom:1px solid rgba(232,197,71,.15);padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.summary-header{background:rgba(184,134,11,.08);border-bottom:1px solid rgba(184,134,11,.15);padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem}
 .summary-header-icon{font-size:1.4rem}
 .summary-header-text .stitle{font-family:var(--fd);font-size:1.1rem;color:var(--text);font-style:italic}
 .summary-header-text .ssub{font-size:12px;color:var(--text3);margin-top:2px}
@@ -771,6 +771,61 @@ textarea{resize:vertical;line-height:1.6;min-height:80px}
 </div>
 
 <script>
+// ── PROVIDER-AGNOSTIC API FETCH ───────────────────────────────────────────
+// When running from file:// the browser blocks cross-origin requests for
+// OpenAI and Gemini. We route through a transparent CORS proxy in that case.
+// This is equal-treatment for all providers — no provider is favoured.
+const IS_LOCAL = location.protocol === 'file:';
+const CORS_PROXY = 'https://corsproxy.io/?url=';
+
+function proxyUrl(url) {
+  return IS_LOCAL ? CORS_PROXY + encodeURIComponent(url) : url;
+}
+
+async function apiFetch(provider, key, body, maxTokens) {
+  let url, headers, payload;
+
+  if (provider === 'claude') {
+    url = 'https://api.anthropic.com/v1/messages';
+    headers = {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    };
+    payload = Object.assign({ max_tokens: maxTokens }, body);
+  } else if (provider === 'openai') {
+    url = 'https://api.openai.com/v1/chat/completions';
+    headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key };
+    payload = Object.assign({ max_tokens: maxTokens }, body);
+  } else if (provider === 'gemini') {
+    const model = maxTokens >= 2000 ? 'gemini-1.5-pro' : 'gemini-1.5-flash';
+    url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + key;
+    headers = { 'Content-Type': 'application/json' };
+    payload = Object.assign({ generationConfig: { maxOutputTokens: maxTokens } }, body);
+  } else {
+    throw new Error('Unknown provider: ' + provider);
+  }
+
+  const res = await fetch(proxyUrl(url), {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(payload)
+  });
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    const msg = (e.error && e.error.message) || (e.message) || ('HTTP ' + res.status);
+    throw new Error(msg);
+  }
+
+  const d = await res.json();
+
+  if (provider === 'claude')  return d.content[0].text;
+  if (provider === 'openai')  return d.choices[0].message.content;
+  if (provider === 'gemini')  return d.candidates[0].content.parts[0].text;
+}
+
 // ── STATE ─────────────────────────────────────────────────────────────────
 const state = {
   sme:{ skin:'#C8956A', hair:'#1A1410', clothing:'#2D3A5C', emotion:'tense' },
@@ -908,32 +963,20 @@ Return ONLY valid JSON in exactly this structure (no markdown, no preamble):
 
   try {
     let text = '';
-    if(provider === 'claude'){
-      const res = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})
-      });
-      const d = await res.json();
-      if(d.error) throw new Error(d.error.message);
-      text = d.content[0].text;
-    } else if(provider === 'openai'){
-      const res = await fetch('https://api.openai.com/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-        body:JSON.stringify({model:'gpt-4o',max_tokens:4000,messages:[{role:'user',content:prompt}]})
-      });
-      const d = await res.json();
-      if(d.error) throw new Error(d.error.message);
-      text = d.choices[0].message.content;
-    } else if(provider === 'gemini'){
-      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key='+key,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:4000}})
-      });
-      const d = await res.json();
-      if(d.error) throw new Error(d.error.message);
-      text = d.candidates[0].content.parts[0].text;
+    if (provider === 'claude') {
+      text = await apiFetch('claude', key, {
+        model: 'claude-sonnet-4-5',
+        messages: [{ role: 'user', content: prompt }]
+      }, 4000);
+    } else if (provider === 'openai') {
+      text = await apiFetch('openai', key, {
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: prompt }]
+      }, 4000);
+    } else if (provider === 'gemini') {
+      text = await apiFetch('gemini', key, {
+        contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      }, 4000);
     }
 
     clearInterval(stepInterval);
@@ -983,197 +1026,6 @@ function confirmGenerated(){
   // show a brief success message
   document.getElementById('gen-status').textContent = '';
 }
-
-    data:{
-      title:'Working with a Difficult SME', learnerRole:'Instructional Designer', skill:'SME relationship management',
-      objective:'Learners will establish their design role with a resistant SME without damaging the relationship',
-      scoreLabel:'Collaboration Score', scoreLow:'Tense', scoreHigh:'Collaborative', tone:'professional',
-      smeName:'Raj Mehta', smeRole:'Senior Compliance SME',
-      smePersonality:'Experienced and opinionated. 22 years in compliance. Sees IDs as slide formatters. Not malicious — just efficient. Warms up when he feels genuinely heard.',
-      smeEmotion:'tense', coachName:'Learning Coach', coachStyle:'direct',
-      acts:[
-        { name:'Act 1 · The Slide Dump', scenes:[
-          { icon:'✉', label:'Email — Monday 9:14 AM', detail:'Day 1. You\'ve sent Raj a kickoff email.',
-            smeText:'Sure. I\'ll send you my slides. There are about 200 of them — the content is all there, you just need to clean them up.',
-            narratorText:'You open the attachment. 214 slides. Dense text, no structure. No learning objectives.',
-            prompt:'How do you respond to Raj\'s email?',
-            context:'Day 1. Raj sees the ID as a formatter. He sent 214 slides with no learning objectives. The ID needs to establish their role and anchor the project to outcomes without confrontation.',
-            scoreGain:12 },
-          { icon:'📹', label:'Video call — Wednesday 2:00 PM', detail:'Kickoff call. Raj joins 8 minutes late.',
-            smeText:'I\'ve got about 20 minutes. The slides are all there — everything the learners need to know is in them.',
-            narratorText:'You need to shift from what content exists to what learners need to do.',
-            prompt:'How do you open this conversation?',
-            context:'First video call. Raj is impatient. The ID needs to shift from content volume to learning outcomes without triggering defensiveness.',
-            scoreGain:10 }
-        ]},
-        { name:'Act 2 · The Credentials Challenge', scenes:[
-          { icon:'📹', label:'Stakeholder review call', detail:'You, Raj, and two stakeholders review your proposed structure.',
-            smeText:'These instructional design frameworks don\'t always translate to technical domains. Do you actually have a background in compliance?',
-            narratorText:'The stakeholders are watching. A public challenge to your credibility.',
-            prompt:'How do you respond with stakeholders present?',
-            context:'Raj has publicly challenged the ID\'s credibility. The ID must respond confidently without making Raj an enemy.',
-            scoreGain:12 }
-        ]},
-        { name:'Act 3 · The Deadline Ghost', scenes:[
-          { icon:'✉', label:'Review cycle — 10 days overdue', detail:'Module 1 draft has been with Raj for 10 days. Nothing.',
-            smeText:'',
-            narratorText:'No response. No acknowledgement. The sponsor call is next week.',
-            prompt:'What do you do?',
-            context:'Raj has gone silent. The review is overdue. The ID must act firmly without escalating prematurely.',
-            scoreGain:10 }
-        ]}
-      ],
-      endings:{
-        high:{ title:'A genuine collaborator', sub:'Raj messages after launch: "People are actually reading the notes section."', narr:'You navigated every friction point with precision — asserting your role without aggression and holding boundaries without breaking trust.', tips:'Anchor early conversations to outcomes\nPublic challenges need confident boundary-setting\nChanging the format solves more than changing the deadline' },
-        mid:{ title:'Grudging respect', sub:'Raj wouldn\'t ask for you — but he wouldn\'t block you either.', narr:'The project is complete and the course is solid. A few moments where you played it too safe left Raj seeing you as competent but not essential.', tips:'When a SME reveals real frustration, treat it as a turning point\nNeutral follow-ups miss the chance to reset the dynamic' },
-        low:{ title:'Project complete. Relationship: complicated.', sub:'The course shipped. Raj has already moved on.', narr:'The project got done, but it was a grind. Several moments where a strategic response could have shifted the dynamic were missed.', tips:'Dismissive SMEs often have a legitimate frustration underneath\nAvoid escalating before having a direct conversation' }
-      }
-    }
-  },
-  { id:'customer', icon:'😤', name:'Angry Customer', desc:'Service rep handles a frustrated customer escalating a complaint.', tag:'Customer Service', color:'#8B2020',
-    data:{
-      title:'Handling a Frustrated Customer', learnerRole:'Customer Service Representative', skill:'De-escalation and empathy',
-      objective:'Learners will de-escalate an angry customer interaction while maintaining professionalism',
-      scoreLabel:'Resolution Score', scoreLow:'Escalating', scoreHigh:'Resolved', tone:'empathetic',
-      smeName:'Sarah Chen', smeRole:'Frustrated Customer',
-      smePersonality:'Has been waiting 3 weeks for a refund. Feels ignored and disrespected. Not unreasonable — just at the end of her patience. Responds well to genuine empathy and clear action, badly to scripted responses or deflection.',
-      smeEmotion:'tense', coachName:'Service Coach', coachStyle:'warm',
-      acts:[
-        { name:'Opening — First Contact', scenes:[
-          { icon:'📞', label:'Inbound call', detail:'Sarah has been on hold for 12 minutes.',
-            smeText:'Finally. I\'ve been waiting three weeks for my refund and every time I call I get told to wait. This is completely unacceptable.',
-            narratorText:'Sarah\'s account shows a refund request from 21 days ago, still marked as processing.',
-            prompt:'How do you open your response?',
-            context:'Customer has been waiting 3 weeks for a refund. She is angry but justified. The rep needs to acknowledge her frustration genuinely before attempting any resolution.',
-            scoreGain:12 }
-        ]},
-        { name:'Resolution — Finding the Path', scenes:[
-          { icon:'📞', label:'Same call — 5 minutes in', detail:'Sarah has calmed slightly but is still on edge.',
-            smeText:'So what are you actually going to do about this? I don\'t want another reference number.',
-            narratorText:'You can see the refund is stuck in a processing queue. You have authority to manually escalate it.',
-            prompt:'What do you say and do?',
-            context:'The customer wants a concrete commitment, not a process explanation. The rep has the ability to manually escalate — the question is how they communicate this.',
-            scoreGain:14 }
-        ]}
-      ],
-      endings:{
-        high:{ title:'Issue resolved, trust rebuilt', sub:'Sarah leaves a positive review: "First rep who actually listened."', narr:'You handled one of the hardest service interactions well — genuine empathy followed by clear action. Sarah felt heard, not processed.', tips:'Acknowledge feelings before offering solutions\nConcrete commitments outperform process explanations\nPersonalise — use the customer\'s name and reference specifics' },
-        mid:{ title:'Issue resolved, relationship neutral', sub:'Sarah got her refund. She won\'t complain. She won\'t return either.', narr:'The refund was processed and the call ended professionally. But the interaction never moved from transactional to human.', tips:'Empathy first — customers need to feel heard before they can hear you\nAvoid scripted language even when using approved phrases' },
-        low:{ title:'Escalated to supervisor', sub:'Sarah asked to speak to your manager.', narr:'The interaction escalated because the customer didn\'t feel genuinely acknowledged. The refund issue was solvable — the communication style made it worse.', tips:'Defensive responses amplify customer anger\nNever tell an angry customer to calm down\nOwn the problem even if it wasn\'t your fault' }
-      }
-    }
-  },
-  { id:'performance', icon:'💼', name:'Performance Conversation', desc:'Manager navigates a difficult performance discussion with a team member.', tag:'Leadership', color:'#4A2D6B',
-    data:{
-      title:'A Difficult Performance Conversation', learnerRole:'Team Manager', skill:'Difficult conversation management',
-      objective:'Learners will deliver performance feedback clearly and constructively without damaging the working relationship',
-      scoreLabel:'Trust Score', scoreLow:'Defensive', scoreHigh:'Constructive', tone:'challenging',
-      smeName:'Marcus Williams', smeRole:'Team Member',
-      smePersonality:'Has been underperforming for two months. Knows it. Defensive because he feels the team environment has changed and he hasn\'t been supported. Won\'t open up unless he feels safe. Responds badly to vague criticism, well to specific examples and genuine curiosity.',
-      smeEmotion:'neutral', coachName:'Leadership Coach', coachStyle:'mentor',
-      acts:[
-        { name:'Opening the Conversation', scenes:[
-          { icon:'🗣', label:'1:1 meeting', detail:'You\'ve scheduled time with Marcus. He looks tense.',
-            smeText:'Is this about the Henderson project? Because I already explained what happened with the timeline.',
-            narratorText:'Marcus is defensive before you\'ve said anything. He knows why he\'s here.',
-            prompt:'How do you open the conversation?',
-            context:'Marcus is already defensive. The manager needs to create psychological safety before raising performance concerns, or Marcus will shut down entirely.',
-            scoreGain:12 }
-        ]},
-        { name:'Getting to the Root', scenes:[
-          { icon:'🗣', label:'Same meeting — 10 minutes in', detail:'Marcus has admitted the work has slipped but hasn\'t said why.',
-            smeText:'I don\'t know. I just... it\'s been hard to stay focused lately. It\'s not the work itself.',
-            narratorText:'This is the opening. Something is going on beyond the performance issue.',
-            prompt:'How do you respond to this?',
-            context:'Marcus has just revealed there is something personal behind the performance dip. The manager has a choice: push for specifics or create space. This moment will determine whether the conversation becomes a disciplinary or a coaching conversation.',
-            scoreGain:14 }
-        ]}
-      ],
-      endings:{
-        high:{ title:'A turning point conversation', sub:'Marcus sends you a message the next morning: "Thanks for actually listening yesterday."', narr:'You turned what could have been a disciplinary conversation into a coaching moment. Marcus feels supported, not managed out.', tips:'Curiosity before judgement — ask why before you explain what\nSpecific examples are kinder than vague impressions\nPhysical environment matters — side by side beats face to face' },
-        mid:{ title:'Acknowledged, not resolved', sub:'Marcus nods along. The meeting ends. Nothing changes yet.', narr:'The conversation was professional and fair. But it didn\'t reach the human level that would have made it transformative.', tips:'Performance conversations need to be two-way to work\nThe manager who talks most learns least' },
-        low:{ title:'Marcus feels managed, not led', sub:'HR gets an email from Marcus that afternoon.', narr:'The conversation focused too much on the problem and not enough on the person. Marcus left feeling judged rather than supported.', tips:'Never open a performance conversation by listing failures\nAsking "what\'s going on?" costs nothing and changes everything' }
-      }
-    }
-  },
-  { id:'stakeholder', icon:'📊', name:'Stakeholder Pushback', desc:'ID defends their design decisions when a sponsor challenges the approach.', tag:'Instructional Design', color:'#1A4A3A',
-    data:{
-      title:'Defending Your Design Decisions', learnerRole:'Instructional Designer', skill:'Stakeholder communication',
-      objective:'Learners will defend evidence-based design decisions confidently while maintaining stakeholder relationships',
-      scoreLabel:'Credibility Score', scoreLow:'Undermined', scoreHigh:'Trusted', tone:'professional',
-      smeName:'Diana Park', smeRole:'Project Sponsor',
-      smePersonality:'Busy executive. Doesn\'t understand instructional design but has strong opinions about what "good training" looks like (usually: more content, shorter time). Responds to business language and ROI framing. Not hostile — just impatient and used to getting her way.',
-      smeEmotion:'neutral', coachName:'Design Coach', coachStyle:'direct',
-      acts:[
-        { name:'The Review Meeting', scenes:[
-          { icon:'📹', label:'Stakeholder review', detail:'Diana has reviewed the prototype.',
-            smeText:'This is good but I think we need more content. The learners need to understand the full regulatory background. Can we add another module?',
-            narratorText:'The course is already at the upper limit of learner attention. Adding another module would hurt completion rates.',
-            prompt:'How do you respond?',
-            context:'Diana wants to add content for reassurance, not learning value. The ID needs to redirect without dismissing her concern — using data and business language, not design jargon.',
-            scoreGain:12 }
-        ]}
-      ],
-      endings:{
-        high:{ title:'Trusted design partner', sub:'Diana introduces you to the CFO as "the person who actually made this work."', narr:'You spoke Diana\'s language — business outcomes, not design theory. She now sees you as a strategic partner, not a vendor.', tips:'Translate design decisions into business outcomes\nData beats opinion in every boardroom\nGive stakeholders something to say yes to, not just a no' },
-        mid:{ title:'Respected but overruled', sub:'The extra module gets added. Completion rates drop 18%.', narr:'You made a professional case but couldn\'t shift the dynamic from consultant to partner. Diana got what she asked for, not what she needed.', tips:'Frame pushback as protecting the business outcome, not defending your design' },
-        low:{ title:'Yes, and then regret', sub:'Six months later: "Why isn\'t anyone completing this training?"', narr:'You agreed to everything. The course ballooned. No one finishes it. You\'re now being asked to fix a problem you predicted.', tips:'Agreeing under pressure is not collaboration — it\'s abdication\nDocument your recommendations even when overruled' }
-      }
-    }
-  },
-  { id:'sales', icon:'🤝', name:'Sales Objection', desc:'Sales rep handles a prospect who is pushing back on price and commitment.', tag:'Sales', color:'#8B6914',
-    data:{
-      title:'Handling a Price Objection', learnerRole:'Sales Representative', skill:'Objection handling',
-      objective:'Learners will handle price objections by reframing value rather than discounting',
-      scoreLabel:'Momentum Score', scoreLow:'Stalled', scoreHigh:'Moving forward', tone:'conversational',
-      smeName:'Tom Bradley', smeRole:'Potential Client',
-      smePersonality:'Procurement manager. Seen every sales technique. Genuinely interested but under budget pressure. Uses price objections as a test — he wants to see if the rep panics and discounts, or holds the value. Responds to honesty and specifics.',
-      smeEmotion:'neutral', coachName:'Sales Coach', coachStyle:'direct',
-      acts:[
-        { name:'The Objection', scenes:[
-          { icon:'📞', label:'Discovery call — near the end', detail:'The call has gone well. Then Tom says:',
-            smeText:'Look, I like what I\'m hearing but the price is significantly above what we budgeted. We\'re probably looking at half that number.',
-            narratorText:'The deal is real. Tom\'s interest is genuine. This is a test, not a dealbreaker.',
-            prompt:'How do you respond?',
-            context:'Classic price objection from a qualified prospect. The rep needs to resist the urge to discount immediately and instead explore the value gap. Panic discounting signals low confidence in the product.',
-            scoreGain:14 }
-        ]}
-      ],
-      endings:{
-        high:{ title:'Deal moves forward', sub:'Tom emails that afternoon: "Let\'s set up the commercial conversation."', narr:'You held the value without being arrogant about it. Tom tested your conviction and you passed.', tips:'Price objections are often value objections in disguise\nDiscounting immediately signals you didn\'t believe the price either\nCuriosity about the budget number often reveals flexibility' },
-        mid:{ title:'Conversation continues', sub:'Tom says he\'ll discuss internally. You\'ll hear back.', narr:'You didn\'t close but you didn\'t lose either. The discount you offered bought time, not commitment.', tips:'Partial discounts without conditions weaken your position' },
-        low:{ title:'Discounted and devalued', sub:'Tom takes the discount and asks for more.', narr:'You discounted the moment you felt pressure. Tom now believes the original price was inflated — and he\'s right to think so.', tips:'Never lead with a discount\nEvery concession needs a condition to protect value' }
-      }
-    }
-  },
-  { id:'compliance', icon:'⚖', name:'Ethics Challenge', desc:'Employee navigates pressure to cut corners on a compliance requirement.', tag:'Compliance', color:'#3D3D3D',
-    data:{
-      title:'Standing Firm Under Compliance Pressure', learnerRole:'Team Member', skill:'Ethical decision-making',
-      objective:'Learners will maintain compliance standards when faced with pressure to cut corners',
-      scoreLabel:'Integrity Score', scoreLow:'Compromised', scoreHigh:'Upheld', tone:'challenging',
-      smeName:'Kevin Nash', smeRole:'Senior Manager',
-      smePersonality:'Results-focused manager under deadline pressure. Not corrupt — just willing to bend rules he sees as bureaucratic. Uses authority and urgency to get compliance. Backs down when challenged calmly with specific consequences.',
-      smeEmotion:'tense', coachName:'Ethics Guide', coachStyle:'socratic',
-      acts:[
-        { name:'The Pressure', scenes:[
-          { icon:'💬', label:'Team meeting', detail:'Kevin pulls you aside after the meeting.',
-            smeText:'Look, we both know the full sign-off process takes 6 weeks and we don\'t have 6 weeks. Just get the preliminary approval and we\'ll backfill the documentation after launch.',
-            narratorText:'Backfilling documentation after the fact violates the company\'s audit requirements.',
-            prompt:'How do you respond?',
-            context:'Kevin is asking the employee to violate audit requirements under time pressure. The employee needs to decline clearly without damaging the relationship or creating unnecessary conflict.',
-            scoreGain:14 }
-        ]}
-      ],
-      endings:{
-        high:{ title:'Standard upheld', sub:'The audit three months later finds zero issues with this project.', narr:'You held the line clearly and professionally. Kevin pushed back but ultimately respected the boundary — and the project launched compliantly, if slightly later.', tips:'Name the specific consequence, not just the rule\nOffer an alternative rather than just a no\nDocument the conversation regardless of outcome' },
-        mid:{ title:'Escalated to compliance team', sub:'The compliance team backs you up. Kevin is not pleased.', narr:'You escalated correctly but the manner created friction. The right outcome with relationship damage.', tips:'Escalate as a last resort, not a first response\nGiving someone a face-saving way to back down preserves the relationship' },
-        low:{ title:'Documentation backfilled. Audit finds irregularities.', sub:'HR investigation follows.', narr:'The shortcut created a much larger problem. You participated in something you knew was wrong under pressure.', tips:'The cost of compliance is almost always lower than the cost of non-compliance\nShort-term discomfort beats long-term consequence every time' }
-      }
-    }
-  },
-  { id:'blank', icon:'✨', name:'Custom Scenario', desc:'Build your own scenario from scratch with your own characters and context.', tag:'Custom', color:'#666',
-    data:null }
-];
 
 // ── UI NAVIGATION ─────────────────────────────────────────────────────────
 function showPanel(id){
@@ -1371,31 +1223,23 @@ async function callSmartAI(prompt){
   const key = document.getElementById('ai-key').value.trim();
   const provider = document.getElementById('ai-provider').value;
   if(!key) throw new Error('Add your API key in AI & Colours first');
-  if(provider==='claude'){
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:600,messages:[{role:'user',content:prompt}]})
-    });
-    const d = await res.json();
-    return d.content[0].text;
+
+  if (provider === 'claude') {
+    return await apiFetch('claude', key, {
+      model: 'claude-haiku-4-5',
+      messages: [{ role: 'user', content: prompt }]
+    }, 600);
   }
-  if(provider==='openai'){
-    const res = await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({model:'gpt-4o-mini',max_tokens:600,messages:[{role:'user',content:prompt}]})
-    });
-    const d = await res.json();
-    return d.choices[0].message.content;
+  if (provider === 'openai') {
+    return await apiFetch('openai', key, {
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }]
+    }, 600);
   }
-  if(provider==='gemini'){
-    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:600}})
-    });
-    const d = await res.json();
-    return d.candidates[0].content.parts[0].text;
+  if (provider === 'gemini') {
+    return await apiFetch('gemini', key, {
+      contents: [{ role: 'user', parts: [{ text: prompt }] }]
+    }, 600);
   }
 }
 
