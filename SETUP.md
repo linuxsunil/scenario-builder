@@ -1,151 +1,148 @@
-# Setup Guide — Working with Raj
+# Setup Guide
 
-Follow these steps in order. Total time: approximately 15 minutes.
+Follow these steps to get your first scenario running in Rise 360 or Storyline 360.
 
----
-
-## Step 1 — Get your Anthropic API key
-
-1. Go to console.anthropic.com
-2. Sign in or create an account
-3. Click API Keys in the left sidebar
-4. Click Create Key, name it anything (e.g. raj-scenario)
-5. Copy the key — it starts with sk-ant-api
-6. Add credits under Plans and Billing (5 USD is enough for hundreds of runs)
-
-Keep this key private. Do not paste it anywhere public.
+Total time: approximately 15 minutes.
 
 ---
 
-## Step 2 — Deploy the Google Apps Script proxy
+## Option A — Use the Builder (recommended)
 
-The proxy sits between Rise and the Anthropic API so your key is never exposed in the browser.
+The builder generates everything for you. No file editing required.
+
+### Step 1 — Get an API key
+
+Choose one provider:
+
+**Claude (Anthropic)**
+1. Go to console.anthropic.com and sign in
+2. Click API Keys in the left sidebar
+3. Click Create Key and name it anything
+4. Copy the key — it starts with sk-ant-api
+5. Add credits under Plans and Billing (5 USD is enough for hundreds of runs)
+
+**ChatGPT (OpenAI)**
+1. Go to platform.openai.com and sign in
+2. Click API Keys in the left menu
+3. Click Create new secret key
+4. Copy the key — it starts with sk-
+
+**Gemini (Google)**
+1. Go to aistudio.google.com
+2. Click Get API key
+3. Copy the key
+
+### Step 2 — Open the builder
+
+Download `builder.html` from this repo and open it in Chrome or Edge. No installation needed.
+
+### Step 3 — Describe your scenario
+
+Fill in the four fields:
+- Who is the learner?
+- Who are they talking to?
+- What is the conflict or challenge?
+- What does a skilled response look like?
+
+Or click one of the inspiration chips to auto-fill with an example.
+
+### Step 4 — Generate
+
+Select your AI provider, paste your API key, and click Generate scenario. The AI will build the full scenario in approximately 15 seconds.
+
+### Step 5 — Review and confirm
+
+A summary card shows what was generated — character name, acts, scene count, and ending titles. Click Confirm to load everything into the editor where you can adjust any detail.
+
+### Step 6 — Export
+
+Click Download HTML. You will get a single index.html file.
+
+### Step 7 — Upload to Rise 360
+
+1. Right-click index.html and compress it to a ZIP file
+   - Windows: right-click > Send to > Compressed folder
+   - Mac: right-click > Compress
+2. In Rise 360, add a Code block to your lesson
+3. Click Upload and select your ZIP file
+4. Preview the lesson to test
+
+### Step 8 — Upload to Storyline 360 (alternative)
+
+Host index.html on a web server (GitHub Pages is free — see below) and insert it as a Web Object in Storyline.
+
+---
+
+## Option B — Use an example scenario directly
+
+The `rise/index.html` file in this repo is a ready-built example scenario. To use it:
+
+1. Open the file in a text editor
+2. Find these two lines near the top of the script section:
+   ```
+   const AI_PROVIDER = 'claude';
+   const AI_KEY = 'YOUR_KEY_HERE';
+   ```
+3. Replace YOUR_KEY_HERE with your API key
+4. Save, zip, and upload to Rise as above
+
+---
+
+## Option C — Use a proxy for public courses
+
+If your scenario will be publicly accessible, you should not embed your API key directly in the HTML. Use the Google Apps Script proxy instead.
+
+### Deploy the proxy
 
 1. Go to script.google.com and sign in with any Google account
 2. Click New project
-3. Select all the default code and delete it
-4. Open the file proxy/Code.gs from this repo and paste the entire contents
-5. On line 1, replace YOUR_ANTHROPIC_API_KEY_HERE with your actual key:
+3. Delete all default code and paste the contents of `proxy/Code.gs`
+4. On line 1, replace YOUR_ANTHROPIC_API_KEY_HERE with your actual key
+5. Press Ctrl+S to save
+6. Click Deploy > New Deployment
+7. Set Type: Web App, Execute as: Me, Who has access: Anyone
+8. Click Deploy and copy the Web App URL
 
+### Connect to Rise HTML
+
+In your generated index.html, find:
 ```
-var ANTHROPIC_API_KEY = 'sk-ant-api03-...your key here...';
+const AI_PROVIDER = 'claude';
+const AI_KEY = 'YOUR_KEY_HERE';
 ```
 
-6. Press Ctrl+S (or Cmd+S) to save
-7. Click Deploy in the top right
-8. Choose New Deployment
-9. Click the gear icon and select Web App
-10. Set Execute as: Me
-11. Set Who has access: Anyone
-12. Click Deploy
-13. Copy the Web App URL — it looks like:
-    https://script.google.com/macros/s/ABC123.../exec
-
-Save this URL. You need it in the next step.
+Replace AI_KEY with your proxy URL instead. Note: the proxy only supports Claude currently.
 
 ---
 
-## Step 3 — Update the Rise HTML file
+## Hosting on GitHub Pages (free)
 
-1. Open rise/index.html in any text editor (Notepad on Windows, TextEdit on Mac)
-2. Near the top of the script section, find this line:
+To use your scenario in Storyline as a Web Object, you need to host it online. GitHub Pages is free:
 
-```
-const PROXY_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
-```
+1. Create a GitHub account at github.com
+2. Create a new repository
+3. Upload index.html to the repository
+4. Go to Settings > Pages
+5. Set Source to main branch
+6. Your URL will be: https://yourusername.github.io/your-repo-name
 
-3. Replace YOUR_APPS_SCRIPT_URL_HERE with your Web App URL from Step 2:
-
-```
-const PROXY_URL = 'https://script.google.com/macros/s/ABC123.../exec';
-```
-
-4. Save the file
-
-The SHARED_SECRET is already set to raj-scenario-2026 in both files and they match — no need to change it.
-
----
-
-## Step 4 — Package and upload to Rise 360
-
-The file must be named index.html and must be at the root of the ZIP (not inside a folder).
-
-On Windows:
-1. Right-click index.html
-2. Send to > Compressed (zipped) folder
-3. Name it working-with-raj.zip
-
-On Mac:
-1. Right-click index.html
-2. Compress index.html
-3. Rename the result to working-with-raj.zip
-
-In Rise 360:
-1. Add a Code block to your lesson
-2. Click Upload
-3. Upload your working-with-raj.zip
-4. Preview the lesson
-
----
-
-## Step 5 — Test it
-
-Type one of these responses in Scene 1 to confirm everything is working:
-
-Bad response (should score 1):
-Thanks Raj, I will get started on the slides right away!
-
-Neutral response (should score 2):
-Thanks for sending these. Could you highlight which sections are most critical?
-
-Good response (should score 3):
-Before I dive in, can we grab 30 minutes to align on what learners should actually be able to do differently after this training?
-
-If you see Raj react and the Learning Coach appear, everything is working.
+Use this URL as the Web Object address in Storyline.
 
 ---
 
 ## Troubleshooting
 
-Error: Failed to fetch
-The Apps Script URL in index.html does not match your deployed URL. Check line 304 in the HTML.
+**Error: No API key configured**
+The API key field was left empty or says YOUR_KEY_HERE. Add your key in the builder before exporting.
 
-Error: Anthropic error 400
-Your API key is empty, incorrect, or has no credits. Check line 1 of Code.gs and your billing at console.anthropic.com.
+**Error: Anthropic error 400 / credit balance too low**
+Your API key is valid but your account has no credits. Add credits at console.anthropic.com under Plans and Billing.
 
-Error: Unauthorised
-The SHARED_SECRET in index.html and Code.gs do not match. Both should say raj-scenario-2026.
+**Error: Failed to fetch / CORS error**
+This happens when calling the API directly from Rise on some networks. Use the Google Apps Script proxy instead.
 
-Blank bubbles on second attempt
-Make sure you are using the latest version of index.html from this repo.
+**Characters not visible**
+Rise's iframe may be blocking Google Fonts. The characters still render — only the font family changes to a system font.
 
-Characters not visible
-Rise's iframe may be blocking Google Fonts. The characters will still render — only the font changes.
-
----
-
-## Updating the Apps Script after changes
-
-If you edit Code.gs, you must redeploy for changes to take effect:
-1. Deploy > Manage Deployments
-2. Click the pencil icon
-3. Change version to New version
-4. Click Deploy
-
-The URL stays the same — no need to update the HTML.
-
----
-
-## Customising for a different scenario
-
-To swap Raj for a different character or topic:
-
-In index.html, find the SCENES array and edit each scene object:
-- sceneContext: what the AI needs to know about the situation
-- rajSaid: what the character just said
-- prompt: the placeholder text in the learner's input box
-- messages: the dialogue bubbles shown to the learner
-
-In Code.gs, edit SYSTEM_PROMPT to describe your new scenario, character, and what a good response looks like.
-
-The scoring engine, characters, and meter all work automatically.
+**Blank response bubbles on retry**
+Make sure you are using the latest version of the generated HTML from the builder.

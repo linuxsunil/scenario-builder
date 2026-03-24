@@ -1,116 +1,108 @@
-# Customisation Guide — Adapting for Your Own Scenario
+# Customisation Guide
 
-This engine is designed to be reused. Here is how to swap out Raj and the SME conflict for any scenario you want to build.
-
----
-
-## Change the character name and personality
-
-In index.html, find every instance of Raj Mehta and replace with your character's name.
-
-In Code.gs, edit the SYSTEM_PROMPT. The first two sentences describe the scenario. Replace them with your context:
-
-Example — a difficult line manager:
-```
-You are an expert leadership coach evaluating how a new manager responds to a challenging conversation with their line manager.
-The learner is playing the role of a team leader navigating a manager who micromanages and undermines their decisions.
-```
-
-Example — a resistant learner:
-```
-You are a facilitation coach evaluating how a trainer handles a resistant participant in a workshop.
-The learner is playing the role of a facilitator managing a senior delegate who is visibly disengaged.
-```
+Everything in a generated scenario is editable. This guide covers what you can change and how.
 
 ---
 
-## Change the scenes
+## The easy way — use the builder editor
 
-Each scene in the SCENES array has these fields:
+After generating a scenario, the builder loads all fields into a full editor. You can change:
 
-```javascript
-{
-  id: 1,
-  act: "Act 1 - The Opening",           // shown in the act badge top right
-  context: {
-    icon: "✉",                           // emoji for the context banner
-    label: "Email - Monday 9:14 AM",     // bold text in banner
-    detail: "Day 1 of the project."      // secondary text in banner
-  },
-  messages: [
-    { from: "raj", name: "Raj Mehta", text: "..." },   // character dialogue
-    { from: "narrator", text: "..." }                   // italic narrator text
-  ],
-  prompt: "How do you respond?",         // textarea placeholder
-  rajSaid: "...",                        // sent to AI for context
-  sceneContext: "...",                   // sent to AI — key for good evaluation
-  scoreGain: 12                          // points awarded for a score 3 response
-}
+- Scenario title, learner role, learning objective
+- Character name, role, personality, skin tone, hair, clothing colour
+- Every scene — dialogue, narrator text, learner prompt, coaching context, score weight
+- Act names and scene count (add or remove freely)
+- All three ending texts and score thresholds
+- Score meter label and end labels
+- Coach name and feedback style
+- Colour scheme (SME colour, learner colour, coach colour, background)
+
+No file editing required. Make changes, click Download HTML, zip, upload.
+
+---
+
+## Editing the HTML directly
+
+If you prefer to edit the exported file directly, open index.html in any text editor (Notepad on Windows, TextEdit on Mac).
+
+### Change the AI provider or key
+
+Near the top of the script section:
+```
+const AI_PROVIDER = 'claude';   // 'claude' | 'openai' | 'gemini'
+const AI_KEY      = 'sk-ant-...';
 ```
 
-The most important field is sceneContext. Write it as if briefing a human coach — describe the power dynamics, what's at stake, and what a skilled response looks like. The richer this is, the better Claude evaluates.
+Change AI_PROVIDER to openai or gemini, and replace the key.
 
----
+### Change character names
 
-## Change the character appearance
+The character name appears in the SCENES array in each message object. Search for the name and replace all instances.
 
-Each character is an inline SVG inside the HTML. Find the svg elements with ids svg-raj, svg-coach, and svg-you.
+### Change scene dialogue
 
-To change skin tone: find the fill colour on the head ellipse and neck rect (default values like #C8956A) and replace with your chosen hex.
+Find the SCENES array. Each scene has a messages array containing the character's dialogue. Edit the text field.
 
-To change hair: edit the ellipse and rect elements above the head.
+### Change the coaching criteria
 
-To change clothing: edit the rect elements below the neck.
+Find SYSTEM_PROMPT near the top of the script. This is the instruction sent to the AI for evaluating learner responses. Edit it to match your scenario and skill.
 
-The mouth paths are controlled by the MOUTHS object in the script. You can adjust the curve values to change the default expression.
+### Change score thresholds
 
----
-
-## Change the scoring thresholds and endings
-
-The three endings trigger at these score thresholds:
-- 80 and above: high ending
-- 50 to 79: mid ending
-- below 50: low ending
-
-To change these, find the renderEnding function and edit:
-```javascript
-const e = score>=80 ? ENDINGS.high : score>=50 ? ENDINGS.mid : ENDINGS.low;
+Find the renderEnding function:
+```
+const e = score >= HIGH_THRESHOLD ? ENDINGS.high : score >= MID_THRESHOLD ? ENDINGS.mid : ENDINGS.low;
 ```
 
-To edit the ending text, find the ENDINGS object and update title, subtitle, narrative, and tips for each ending.
+HIGH_THRESHOLD and MID_THRESHOLD are set as constants near the top of the script.
 
----
+### Change colours
 
-## Change the scoring criteria
-
-In Code.gs, the SYSTEM_PROMPT defines what scores 1, 2, and 3 mean. You can rewrite these for any skill:
-
-Example for negotiation skills:
+Find the CSS variables at the top of the style section:
 ```
-1 = Ineffective: positional, combative, or ignores the other party's interests entirely
-2 = Partially effective: acknowledges interests but anchors too early or concedes without condition
-3 = Effective: explores interests before positions, uses conditional language, builds mutual gain
+--sme: #2D3A5C;
+--you: #1A4A3A;
+--coach: #4A2D6B;
+--bg: #F7F5F0;
 ```
 
----
-
-## Add more than 3 characters
-
-The stage supports any number of character slots. Copy an existing char-slot div in the HTML, give it a new id, and add the corresponding entry to the chars object in the script. The showCoach function pattern can be reused for any character you want to appear and disappear dynamically.
+Replace with any hex colour values.
 
 ---
 
-## Use in Storyline 360
+## Adapting for a completely different scenario
 
-Instead of Rise's code block, use a Web Object in Storyline:
-1. Host the index.html on a web server (GitHub Pages works perfectly and is free)
-2. In Storyline, insert > Web Object and paste the URL
-3. Set it to display in the slide (not in a new window)
-4. The scenario runs identically inside Storyline
+To reuse the engine for a different scenario type, you only need to change:
 
-To host on GitHub Pages:
-1. Create a GitHub repo
-2. Upload index.html as the only file
-3. Go to Settings > Pages > Source: main branch
-4. Your URL will be https://yourusername.github.io/your-repo-name
+1. The four guided fields in the builder — the rest generates automatically
+2. Or if editing HTML directly: the SCENES array, ENDINGS object, and SYSTEM_PROMPT
+
+The animation engine, scoring logic, character stage, and export all work identically regardless of scenario content.
+
+---
+
+## Adding the scenario to Storyline 360
+
+Instead of Rise's code block, use Insert > Web Object in Storyline:
+
+1. Host your index.html on a web server (GitHub Pages is free — see SETUP.md)
+2. In Storyline, go to Insert > Web Object
+3. Paste the hosted URL
+4. Set it to display in the slide (not in a new window)
+5. Size the web object to fill your slide
+
+The scenario runs identically inside Storyline.
+
+---
+
+## Sharing scenarios with other IDs
+
+Export your scenario config as JSON using the Export JSON button in the builder toolbar. Send the JSON file to another ID. They import it with the Import JSON button — all fields populate instantly, no rebuilding from scratch.
+
+---
+
+## Saving and reusing characters
+
+In the Character Library panel of the builder, click Save current SME to save a character to your browser. Saved characters persist between sessions and can be loaded into any new scenario.
+
+Note: characters are saved to your browser's local storage. They will not transfer to another computer unless you export the scenario JSON and share it.
