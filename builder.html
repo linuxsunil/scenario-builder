@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scenario Builder — Rise & Storyline</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;1,300&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0F0F10;--surface:#18181B;--surface2:#222226;--surface3:#2A2A2F;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#F2F0EB;--text2:#A8A49E;--text3:#6B6762;
+  --accent:#E8C547;--accent2:#D4A830;
+  --green:#4ADE80;--green-bg:rgba(74,222,128,0.1);
+  --red:#F87171;--red-bg:rgba(248,113,113,0.1);
+  --blue:#60A5FA;--blue-bg:rgba(96,165,250,0.1);
+  --amber:#FBBF24;--amber-bg:rgba(251,191,36,0.1);
+  --fd:'Fraunces',Georgia,serif;
+  --fb:'Plus Jakarta Sans',system-ui,sans-serif;
+  --r:10px;--rs:6px;
+}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+
+/* ── LAYOUT ── */
+.app{display:grid;grid-template-columns:280px 1fr;grid-template-rows:56px 1fr;height:100vh;overflow:hidden}
+.topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;gap:1rem}
+.topbar-logo{font-family:var(--fd);font-size:1.1rem;color:var(--accent);font-style:italic;white-space:nowrap}
+.topbar-logo span{color:var(--text2);font-style:normal;font-size:.75rem;font-family:var(--fb);margin-left:.5rem}
+.topbar-actions{display:flex;align-items:center;gap:.5rem}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:1rem 0}
+.main{overflow-y:auto;background:var(--bg)}
+
+/* ── SIDEBAR NAV ── */
+.nav-section{padding:.25rem .75rem;margin-bottom:.25rem}
+.nav-section-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:.5rem .75rem .25rem}
+.nav-item{display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border-radius:var(--rs);cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;margin:1px 0}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(232,197,71,.1);color:var(--accent)}
+.nav-item .nav-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--surface3);flex-shrink:0}
+.nav-item.active .nav-icon{background:rgba(232,197,71,.2)}
+.nav-item .nav-badge{margin-left:auto;font-size:10px;background:var(--surface3);color:var(--text3);padding:1px 6px;border-radius:10px}
+.nav-item.active .nav-badge{background:rgba(232,197,71,.15);color:var(--accent)}
+.nav-divider{height:1px;background:var(--border);margin:.5rem .75rem}
+
+/* template library sidebar items */
+.tpl-item{display:flex;align-items:center;gap:.6rem;padding:.45rem .75rem;border-radius:var(--rs);cursor:pointer;font-size:12px;color:var(--text3);transition:all .15s;margin:1px 0}
+.tpl-item:hover{background:var(--surface2);color:var(--text2)}
+.tpl-item.loaded{color:var(--accent);background:rgba(232,197,71,.06)}
+.tpl-dot{width:6px;height:6px;border-radius:50%;background:var(--surface3);flex-shrink:0}
+.tpl-item.loaded .tpl-dot{background:var(--accent)}
+
+/* ── MAIN CONTENT ── */
+.panel{display:none;padding:2rem;max-width:860px}
+.panel.active{display:block}
+.panel-header{margin-bottom:2rem}
+.panel-title{font-family:var(--fd);font-size:1.8rem;font-weight:300;color:var(--text);margin-bottom:.4rem}
+.panel-title em{color:var(--accent);font-style:italic}
+.panel-sub{font-size:13.5px;color:var(--text2);line-height:1.6;max-width:560px}
+
+/* ── FORM ELEMENTS ── */
+.field{margin-bottom:1.25rem}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+.field-row.three{grid-template-columns:1fr 1fr 1fr}
+label{display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:.4rem}
+label .hint{font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3);opacity:.7;font-size:10px;margin-left:.3rem}
+input[type=text],input[type=password],input[type=url],select,textarea{width:100%;padding:.65rem .85rem;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--fb);font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+select{cursor:pointer}
+select option{background:var(--surface2)}
+textarea{resize:vertical;line-height:1.6;min-height:80px}
+
+/* colour input */
+.color-field{display:flex;align-items:center;gap:.5rem}
+.color-field input[type=color]{width:36px;height:36px;padding:2px;border-radius:var(--rs);cursor:pointer;border:1px solid var(--border2);background:var(--surface2)}
+.color-field input[type=text]{width:90px;font-family:monospace;font-size:12px}
+.color-preview{width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--border)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:var(--rs);font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;border:none;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#0F0F10;font-weight:600}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.btn-danger:hover{background:rgba(248,113,113,.2)}
+.btn-sm{padding:.35rem .7rem;font-size:12px}
+.btn-full{width:100%;justify-content:center}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem}
+.card+.card{margin-top:1rem}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-sub{font-size:12px;color:var(--text3);margin-top:2px}
+
+/* ── TEMPLATE GRID ── */
+.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;margin-bottom:1.5rem}
+.tpl-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.1rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.tpl-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(232,197,71,.03));pointer-events:none}
+.tpl-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.tpl-card.selected{border-color:var(--accent);background:rgba(232,197,71,.04)}
+.tpl-card-icon{font-size:1.6rem;margin-bottom:.6rem}
+.tpl-card-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:.3rem}
+.tpl-card-desc{font-size:11.5px;color:var(--text3);line-height:1.5}
+.tpl-card-tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;margin-top:.5rem;background:var(--surface3);color:var(--text3)}
+.tpl-card.selected .tpl-card-tag{background:rgba(232,197,71,.15);color:var(--accent)}
+
+/* ── ACTS & SCENES ── */
+.act-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:1rem;overflow:hidden}
+.act-header{display:flex;align-items:center;gap:.75rem;padding:.85rem 1rem;background:var(--surface2);border-bottom:1px solid var(--border);cursor:pointer}
+.act-handle{color:var(--text3);font-size:13px;cursor:grab}
+.act-name-input{flex:1;background:transparent;border:none;font-family:var(--fb);font-size:13px;font-weight:600;color:var(--text);outline:none;padding:0}
+.act-name-input::placeholder{color:var(--text3)}
+.act-scenes{padding:.75rem}
+.scene-row{background:var(--surface3);border:1px solid var(--border);border-radius:var(--rs);padding:.85rem;margin-bottom:.5rem;position:relative}
+.scene-row-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.scene-number{font-size:10px;font-weight:700;color:var(--text3);background:var(--surface2);padding:2px 7px;border-radius:10px}
+.scene-icon-select{width:60px;padding:.4rem .5rem;font-size:13px}
+.scene-del{margin-left:auto;opacity:.4;transition:opacity .15s}
+.scene-del:hover{opacity:1}
+.add-scene-btn{display:flex;align-items:center;gap:.4rem;padding:.5rem .75rem;background:transparent;border:1px dashed var(--border2);border-radius:var(--rs);color:var(--text3);font-size:12px;cursor:pointer;width:100%;justify-content:center;transition:all .15s;margin-top:.25rem}
+.add-scene-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.04)}
+.add-act-btn{display:flex;align-items:center;gap:.4rem;padding:.65rem 1rem;background:transparent;border:1.5px dashed var(--border2);border-radius:var(--r);color:var(--text3);font-size:13px;cursor:pointer;width:100%;justify-content:center;transition:all .15s;margin-top:.5rem}
+.add-act-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.04)}
+
+/* ── CHARACTER APPEARANCE ── */
+.char-preview{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1rem;background:var(--surface3);border-radius:var(--r);border:1px solid var(--border)}
+.char-preview svg{transition:all .3s}
+.char-preview-label{font-size:11px;color:var(--text3);text-align:center}
+.skin-swatches{display:flex;gap:.4rem;flex-wrap:wrap}
+.swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.swatch:hover,.swatch.selected{border-color:var(--accent);transform:scale(1.1)}
+.emotion-arc{display:flex;gap:.4rem;align-items:center}
+.emotion-btn{padding:.35rem .7rem;border-radius:var(--rs);font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s}
+.emotion-btn.selected{background:rgba(232,197,71,.1);border-color:var(--accent);color:var(--accent)}
+
+/* ── SMART FEATURES ── */
+.smart-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem}
+.smart-panel-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.85rem}
+.smart-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.smart-title{font-size:13px;font-weight:600;color:var(--text)}
+.smart-run-btn{margin-left:auto}
+.smart-result{font-size:12.5px;line-height:1.65;color:var(--text2);background:var(--surface2);border-radius:var(--rs);padding:.85rem;display:none}
+.smart-result.show{display:block}
+.smart-result.ok{background:var(--green-bg);color:var(--green)}
+.smart-result.warn{background:var(--amber-bg);color:var(--amber)}
+.smart-result.err{background:var(--red-bg);color:var(--red)}
+.difficulty-bars{display:flex;flex-direction:column;gap:.4rem}
+.diff-row{display:flex;align-items:center;gap:.6rem;font-size:12px}
+.diff-label{width:120px;color:var(--text2);flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.diff-bar-wrap{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.diff-bar{height:100%;border-radius:3px;transition:width .6s ease}
+.diff-badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;width:42px;text-align:center}
+
+/* ── ENDINGS ── */
+.ending-tabs{display:flex;gap:.3rem;margin-bottom:1rem}
+.ending-tab{padding:.4rem .85rem;border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s}
+.ending-tab.active.high{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3);color:var(--green)}
+.ending-tab.active.mid{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.3);color:var(--amber)}
+.ending-tab.active.low{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.3);color:var(--red)}
+.ending-panel{display:none}
+.ending-panel.active{display:block}
+
+/* ── EXPORT PANEL ── */
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.export-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:1.25rem;text-align:center;transition:all .2s}
+.export-card:hover{border-color:var(--accent)}
+.export-card-icon{font-size:2rem;margin-bottom:.6rem}
+.export-card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:.3rem}
+.export-card-desc{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:.85rem}
+.preview-frame{width:100%;height:600px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);display:none}
+.preview-frame.show{display:block}
+
+/* ── CHAR LIBRARY ── */
+.char-lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.6rem}
+.char-lib-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:.85rem;text-align:center;cursor:pointer;transition:all .15s}
+.char-lib-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.char-lib-name{font-size:12px;font-weight:600;color:var(--text);margin-top:.4rem}
+.char-lib-role{font-size:11px;color:var(--text3)}
+
+/* ── JSON SHARE ── */
+.json-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:.85rem;font-family:monospace;font-size:11px;color:var(--text3);max-height:180px;overflow-y:auto;word-break:break-all;line-height:1.6}
+
+/* ── BADGES / TAGS ── */
+.badge{display:inline-flex;align-items:center;gap:.25rem;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+
+/* ── MISC ── */
+.section-divider{height:1px;background:var(--border);margin:1.5rem 0}
+.tip-box{background:rgba(232,197,71,.06);border:1px solid rgba(232,197,71,.15);border-radius:var(--rs);padding:.75rem 1rem;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1.25rem}
+.tip-box strong{color:var(--accent)}
+.loading-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.row-actions{display:flex;align-items:center;gap:.5rem;margin-top:1rem}
+.inspiration-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}
+.chip{padding:.35rem .8rem;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.06)}
+.gen-form{display:flex;flex-direction:column;gap:1rem}
+.gen-field{display:flex;flex-direction:column;gap:.4rem}
+.gen-field label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3)}
+.gen-field textarea{min-height:70px}
+.gen-field input{padding:.65rem .85rem;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--fb);font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+.gen-field input:focus,.gen-field textarea:focus{border-color:var(--accent)}
+.gen-ai-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.gen-btn-row{display:flex;gap:.75rem;align-items:center;margin-top:.5rem}
+.gen-status{font-size:12px;color:var(--text3);font-style:italic}
+.gen-loading{display:none;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;gap:1.25rem;text-align:center}
+.gen-loading.show{display:flex}
+.gen-spinner-ring{width:48px;height:48px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.gen-loading-title{font-family:var(--fd);font-size:1.3rem;color:var(--text);font-style:italic}
+.gen-loading-sub{font-size:13px;color:var(--text3);max-width:340px;line-height:1.6}
+.gen-step{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-top:.25rem}
+.summary-card{display:none;background:var(--surface);border:1.5px solid rgba(232,197,71,.3);border-radius:var(--r);overflow:hidden}
+.summary-card.show{display:block;animation:fadeUpS .4s ease}
+@keyframes fadeUpS{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.summary-header{background:rgba(232,197,71,.08);border-bottom:1px solid rgba(232,197,71,.15);padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.summary-header-icon{font-size:1.4rem}
+.summary-header-text .stitle{font-family:var(--fd);font-size:1.1rem;color:var(--text);font-style:italic}
+.summary-header-text .ssub{font-size:12px;color:var(--text3);margin-top:2px}
+.summary-body{padding:1.25rem;display:flex;flex-direction:column;gap:.85rem}
+.summary-row{display:flex;gap:.75rem;align-items:flex-start}
+.summary-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);width:110px;flex-shrink:0;padding-top:2px}
+.summary-value{font-size:13px;color:var(--text2);line-height:1.5;flex:1}
+.summary-value strong{color:var(--text);font-weight:600}
+.summary-acts{display:flex;flex-direction:column;gap:.3rem}
+.summary-act{font-size:12px;color:var(--text2)}
+.summary-act-name{color:var(--accent);font-weight:600;margin-right:.3rem}
+.summary-actions{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:.5rem}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo">Scenario Builder <span>for Rise 360 & Storyline</span></div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="importScenario()">↑ Import JSON</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportScenarioJSON()">↓ Export JSON</button>
+      <button class="btn btn-primary btn-sm" onclick="showPanel('export')">Generate ↗</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-section-label">Build</div>
+    <div class="nav-section">
+      <div class="nav-item active" onclick="showPanel('generate')">
+        <div class="nav-icon">✨</div> Generate
+      </div>
+      <div class="nav-item" onclick="showPanel('scenario')">
+        <div class="nav-icon">🎯</div> Scenario
+      </div>
+      <div class="nav-item" onclick="showPanel('characters')">
+        <div class="nav-icon">🎭</div> Characters
+      </div>
+      <div class="nav-item" onclick="showPanel('acts')">
+        <div class="nav-icon">📝</div> Acts &amp; Scenes
+        <span class="nav-badge" id="scene-count-badge">0</span>
+      </div>
+      <div class="nav-item" onclick="showPanel('endings')">
+        <div class="nav-icon">🏁</div> Endings
+      </div>
+      <div class="nav-item" onclick="showPanel('aicolors')">
+        <div class="nav-icon">⚙</div> AI &amp; Colours
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Smart Tools</div>
+    <div class="nav-section">
+      <div class="nav-item" onclick="showPanel('smart')">
+        <div class="nav-icon">🧠</div> Analyse Scenario
+      </div>
+      <div class="nav-item" onclick="showPanel('library')">
+        <div class="nav-icon">📚</div> Character Library
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Export</div>
+    <div class="nav-section">
+      <div class="nav-item" onclick="showPanel('export')">
+        <div class="nav-icon">🚀</div> Preview &amp; Export
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN PANELS -->
+  <div class="main">
+
+    <!-- ── GENERATE ── -->
+    <div class="panel active" id="panel-generate">
+      <div class="panel-header">
+        <div class="panel-title">Describe your <em>scenario</em></div>
+        <div class="panel-sub">Tell the AI what you want to build. Four guided fields is all it takes — the AI writes the characters, scenes, dialogue, coaching context, and endings.</div>
+      </div>
+
+      <div style="margin-bottom:.75rem">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:.6rem">Try one of these</div>
+        <div class="inspiration-chips" id="inspiration-chips"></div>
+      </div>
+
+      <div class="gen-form" id="gen-form">
+        <div class="gen-field">
+          <label>Who is the learner? <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;opacity:.6">their role in the scenario</span></label>
+          <input type="text" id="gen-learner" placeholder="e.g. A newly promoted team manager, A customer service rep, An instructional designer...">
+        </div>
+        <div class="gen-field">
+          <label>Who are they talking to? <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;opacity:.6">the character they're interacting with</span></label>
+          <textarea id="gen-character" rows="2" placeholder="e.g. A senior SME who dismisses their expertise. A frustrated customer who has been waiting 3 weeks for a refund. A manager who micromanages every decision..."></textarea>
+        </div>
+        <div class="gen-field">
+          <label>What's the conflict or challenge? <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;opacity:.6">the tension the learner needs to navigate</span></label>
+          <textarea id="gen-conflict" rows="2" placeholder="e.g. The SME sends 200 slides and tells the ID to 'just clean them up'. The customer escalates and threatens to leave. The manager undermines the learner in front of the team..."></textarea>
+        </div>
+        <div class="gen-field">
+          <label>What does a skilled response look like? <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:10px;opacity:.6">what you want learners to get better at</span></label>
+          <textarea id="gen-skill" rows="2" placeholder="e.g. Asserting their design role without being confrontational. De-escalating with empathy before offering solutions. Giving feedback that is specific and non-judgmental..."></textarea>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:.25rem 0"></div>
+
+        <div class="gen-ai-row">
+          <div class="gen-field">
+            <label>AI Provider</label>
+            <select id="gen-provider" style="padding:.65rem .85rem;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);font-family:var(--fb);font-size:13px;color:var(--text);outline:none">
+              <option value="claude">🟠 Claude (Anthropic)</option>
+              <option value="openai">🟢 ChatGPT (OpenAI)</option>
+              <option value="gemini">🔵 Gemini (Google)</option>
+            </select>
+          </div>
+          <div class="gen-field">
+            <label>API Key</label>
+            <input type="password" id="gen-key" placeholder="Paste your key here" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="tip-box" style="margin-bottom:0"><strong>Note:</strong> Your key is used to generate the scenario here in the builder. It will also be embedded in the exported HTML so the scenario can run in Rise. Keep your exported file secure.</div>
+
+        <div class="gen-btn-row">
+          <button class="btn btn-primary" id="gen-btn" onclick="generateScenario()">✨ Generate scenario</button>
+          <button class="btn btn-ghost" onclick="clearGenForm()">Clear</button>
+          <span class="gen-status" id="gen-status"></span>
+        </div>
+      </div>
+
+      <!-- Loading state -->
+      <div class="gen-loading" id="gen-loading">
+        <div class="gen-spinner-ring"></div>
+        <div>
+          <div class="gen-loading-title">Building your scenario…</div>
+          <div class="gen-loading-sub">The AI is writing your characters, scenes, coaching context, and endings. This takes about 15 seconds.</div>
+          <div class="gen-step" id="gen-step-label">Reading your description</div>
+        </div>
+      </div>
+
+      <!-- Summary card -->
+      <div class="summary-card" id="summary-card">
+        <div class="summary-header">
+          <div class="summary-header-icon">✅</div>
+          <div class="summary-header-text">
+            <div class="stitle" id="sum-title">Scenario generated</div>
+            <div class="ssub">Here's what the AI built — confirm to load it into the editor, or regenerate with different inputs.</div>
+          </div>
+        </div>
+        <div class="summary-body">
+          <div class="summary-row">
+            <div class="summary-label">Scenario</div>
+            <div class="summary-value" id="sum-scenario"></div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Learner</div>
+            <div class="summary-value" id="sum-learner"></div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Character</div>
+            <div class="summary-value" id="sum-character"></div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Skill assessed</div>
+            <div class="summary-value" id="sum-skill"></div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Acts & scenes</div>
+            <div class="summary-value"><div class="summary-acts" id="sum-acts"></div></div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-label">Endings</div>
+            <div class="summary-value" id="sum-endings"></div>
+          </div>
+        </div>
+        <div class="summary-actions">
+          <button class="btn btn-primary" onclick="confirmGenerated()">✓ Looks good — load into editor</button>
+          <button class="btn btn-ghost" onclick="resetGenerate()">↺ Regenerate</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCENARIO ── -->
+    <div class="panel" id="panel-scenario">
+      <div class="panel-header">
+        <div class="panel-title">Scenario <em>basics</em></div>
+        <div class="panel-sub">The overall setup — what this scenario is about and who is learning what.</div>
+      </div>
+      <div class="field">
+        <label>Scenario title</label>
+        <input type="text" id="s-title" placeholder="e.g. Working with a Difficult SME">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Learner role <span class="hint">who is the learner playing?</span></label>
+          <input type="text" id="s-learner-role" placeholder="e.g. Instructional Designer">
+        </div>
+        <div class="field">
+          <label>Skill being assessed</label>
+          <input type="text" id="s-skill" placeholder="e.g. SME relationship management">
+        </div>
+      </div>
+      <div class="field">
+        <label>Learning objective <span class="hint">one clear sentence</span></label>
+        <input type="text" id="s-objective" placeholder="e.g. Learners will be able to establish their design role with a resistant SME">
+      </div>
+      <div class="field">
+        <label>Score label <span class="hint">what the meter measures</span></label>
+        <input type="text" id="s-score-label" placeholder="e.g. Collaboration Score">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Score start label <span class="hint">left end of meter</span></label>
+          <input type="text" id="s-score-low" placeholder="e.g. Tense">
+        </div>
+        <div class="field">
+          <label>Score end label <span class="hint">right end of meter</span></label>
+          <input type="text" id="s-score-high" placeholder="e.g. Collaborative">
+        </div>
+      </div>
+      <div class="field">
+        <label>Tone</label>
+        <select id="s-tone">
+          <option value="professional">Professional — formal workplace setting</option>
+          <option value="conversational">Conversational — relaxed and accessible</option>
+          <option value="challenging">Challenging — high stakes, pressure situations</option>
+          <option value="empathetic">Empathetic — emotionally sensitive scenarios</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ── CHARACTERS ── -->
+    <div class="panel" id="panel-characters">
+      <div class="panel-header">
+        <div class="panel-title">Character <em>builder</em></div>
+        <div class="panel-sub">Define the SME (the person the learner is talking to) and the Learning Coach.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">SME Character</div><div class="card-sub">The person the learner is interacting with</div></div></div>
+        <div class="field-row">
+          <div class="field">
+            <label>Full name</label>
+            <input type="text" id="c-sme-name" placeholder="e.g. Raj Mehta" oninput="updateCharPreview()">
+          </div>
+          <div class="field">
+            <label>Job title / role</label>
+            <input type="text" id="c-sme-role" placeholder="e.g. Senior Compliance SME">
+          </div>
+        </div>
+        <div class="field">
+          <label>Personality <span class="hint">describe in plain English — the AI uses this</span></label>
+          <textarea id="c-sme-personality" rows="3" placeholder="e.g. Experienced and opinionated. Has been doing this for 20 years. Dismissive of process people. Not deliberately rude — just efficient. Values expertise over frameworks. Warms up slowly when he feels heard."></textarea>
+        </div>
+        <div class="field">
+          <label>Starting emotion</label>
+          <div class="emotion-arc" id="sme-emotion-btns">
+            <button class="emotion-btn selected" onclick="selectEmotion('sme','tense',this)">😤 Tense</button>
+            <button class="emotion-btn" onclick="selectEmotion('sme','neutral',this)">😐 Neutral</button>
+            <button class="emotion-btn" onclick="selectEmotion('sme','warm',this)">🙂 Warm</button>
+          </div>
+        </div>
+        <div class="section-divider"></div>
+        <div class="card-title" style="margin-bottom:.85rem;font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em">Appearance</div>
+        <div class="field-row three">
+          <div class="field">
+            <label>Skin tone</label>
+            <div class="skin-swatches" id="sme-skin-swatches">
+              <div class="swatch selected" style="background:#FDDBB4" data-color="#FDDBB4" onclick="selectSkin('sme',this)" title="Light"></div>
+              <div class="swatch" style="background:#E8C49A" data-color="#E8C49A" onclick="selectSkin('sme',this)" title="Light-medium"></div>
+              <div class="swatch" style="background:#C8956A" data-color="#C8956A" onclick="selectSkin('sme',this)" title="Medium"></div>
+              <div class="swatch" style="background:#A0714F" data-color="#A0714F" onclick="selectSkin('sme',this)" title="Medium-dark"></div>
+              <div class="swatch" style="background:#7A4F2D" data-color="#7A4F2D" onclick="selectSkin('sme',this)" title="Dark"></div>
+              <div class="swatch" style="background:#4A2D10" data-color="#4A2D10" onclick="selectSkin('sme',this)" title="Deep"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Hair colour</label>
+            <div class="skin-swatches" id="sme-hair-swatches">
+              <div class="swatch selected" style="background:#1A1410" data-color="#1A1410" onclick="selectHair('sme',this)"></div>
+              <div class="swatch" style="background:#3D2408" data-color="#3D2408" onclick="selectHair('sme',this)"></div>
+              <div class="swatch" style="background:#6B4226" data-color="#6B4226" onclick="selectHair('sme',this)"></div>
+              <div class="swatch" style="background:#8B6914" data-color="#8B6914" onclick="selectHair('sme',this)"></div>
+              <div class="swatch" style="background:#C0A882" data-color="#C0A882" onclick="selectHair('sme',this)"></div>
+              <div class="swatch" style="background:#D0CDCA" data-color="#D0CDCA" onclick="selectHair('sme',this)"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Clothing colour</label>
+            <div class="skin-swatches" id="sme-clothing-swatches">
+              <div class="swatch selected" style="background:#2D3A5C" data-color="#2D3A5C" onclick="selectClothing('sme',this)"></div>
+              <div class="swatch" style="background:#1A4A3A" data-color="#1A4A3A" onclick="selectClothing('sme',this)"></div>
+              <div class="swatch" style="background:#4A2D6B" data-color="#4A2D6B" onclick="selectClothing('sme',this)"></div>
+              <div class="swatch" style="background:#8B2020" data-color="#8B2020" onclick="selectClothing('sme',this)"></div>
+              <div class="swatch" style="background:#3D3D3D" data-color="#3D3D3D" onclick="selectClothing('sme',this)"></div>
+              <div class="swatch" style="background:#8B6914" data-color="#8B6914" onclick="selectClothing('sme',this)"></div>
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:.5rem">
+          <label>Live preview</label>
+          <div class="char-preview" id="sme-char-preview">
+            <svg id="preview-sme-svg" viewBox="0 0 100 120" width="80" height="96" xmlns="http://www.w3.org/2000/svg">
+              <rect x="22" y="88" width="56" height="32" rx="8" id="ps-clothing" fill="#2D3A5C"/>
+              <rect x="30" y="84" width="40" height="12" rx="4" id="ps-collar" fill="#3D4E7A"/>
+              <rect x="40" y="75" width="20" height="14" rx="3" id="ps-neck" fill="#C8956A"/>
+              <ellipse cx="50" cy="52" rx="30" ry="34" id="ps-head" fill="#C8956A"/>
+              <ellipse cx="50" cy="22" rx="30" ry="14" id="ps-hair1" fill="#1A1410"/>
+              <rect x="20" y="22" width="60" height="10" id="ps-hair2" fill="#1A1410"/>
+              <ellipse cx="20" cy="54" rx="5" ry="7" id="ps-earL" fill="#B8835A"/>
+              <ellipse cx="80" cy="54" rx="5" ry="7" id="ps-earR" fill="#B8835A"/>
+              <rect x="28" y="36" width="18" height="4" rx="2" id="ps-browL" fill="#1A1410" transform="rotate(-8,37,38)"/>
+              <rect x="54" y="36" width="18" height="4" rx="2" id="ps-browR" fill="#1A1410" transform="rotate(8,63,38)"/>
+              <ellipse cx="37" cy="48" rx="6" ry="6.5" fill="#1A1814"/>
+              <ellipse cx="63" cy="48" rx="6" ry="6.5" fill="#1A1814"/>
+              <circle cx="38.5" cy="46.5" r="1.5" fill="#fff"/>
+              <circle cx="64.5" cy="46.5" r="1.5" fill="#fff"/>
+              <path d="M50 52 Q46 60 49 63 Q50 64 51 63 Q54 60 50 52" id="ps-nose" fill="#B8835A"/>
+              <path id="ps-mouth" d="M38 74 Q50 71 62 74" stroke="#8B5E3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </svg>
+            <div class="char-preview-label" id="sme-preview-label">Raj Mehta</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="card-header"><div><div class="card-title">Learning Coach</div><div class="card-sub">Appears to guide learners after incorrect responses</div></div></div>
+        <div class="field-row">
+          <div class="field">
+            <label>Coach name</label>
+            <input type="text" id="c-coach-name" placeholder="e.g. Learning Coach">
+          </div>
+          <div class="field">
+            <label>Feedback style</label>
+            <select id="c-coach-style">
+              <option value="direct">Direct — clear, honest, action-focused</option>
+              <option value="warm">Warm — empathetic, encouraging, supportive</option>
+              <option value="socratic">Socratic — questions that prompt reflection</option>
+              <option value="mentor">Mentor — experienced, wise, contextual</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ACTS & SCENES ── -->
+    <div class="panel" id="panel-acts">
+      <div class="panel-header">
+        <div class="panel-title">Acts &amp; <em>Scenes</em></div>
+        <div class="panel-sub">Structure your scenario. Each act groups related scenes. Each scene is one moment — one thing the character says, one decision the learner makes.</div>
+      </div>
+      <div class="tip-box"><strong>Tip:</strong> 3 acts with 3 scenes each is the sweet spot. Act 1 builds context, Act 2 raises the stakes, Act 3 tests for real skill.</div>
+      <div id="acts-container"></div>
+      <button class="add-act-btn" onclick="addAct()">+ Add act</button>
+    </div>
+
+    <!-- ── ENDINGS ── -->
+    <div class="panel" id="panel-endings">
+      <div class="panel-header">
+        <div class="panel-title">Scenario <em>endings</em></div>
+        <div class="panel-sub">Define what the learner sees based on their final score. Three levels — strong, middling, and needs work.</div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>High score threshold <span class="hint">score above this = great ending</span></label>
+          <input type="text" id="e-high-threshold" placeholder="80" value="80">
+        </div>
+        <div class="field">
+          <label>Mid score threshold <span class="hint">score above this = mid ending</span></label>
+          <input type="text" id="e-mid-threshold" placeholder="50" value="50">
+        </div>
+      </div>
+      <div class="ending-tabs">
+        <button class="ending-tab active high" onclick="showEnding('high',this)">🟢 Strong</button>
+        <button class="ending-tab mid" onclick="showEnding('mid',this)">🟡 Middling</button>
+        <button class="ending-tab low" onclick="showEnding('low',this)">🔴 Needs work</button>
+      </div>
+      <div class="ending-panel active" id="ending-high">
+        <div class="field"><label>Title</label><input type="text" id="e-high-title" placeholder="e.g. A genuine collaborator"></div>
+        <div class="field"><label>Subtitle <span class="hint">one memorable line</span></label><input type="text" id="e-high-sub" placeholder="e.g. Raj sends you a message after launch..."></div>
+        <div class="field"><label>Narrative paragraph</label><textarea id="e-high-narr" rows="3" placeholder="What happened in this ending..."></textarea></div>
+        <div class="field"><label>Takeaways <span class="hint">one per line</span></label><textarea id="e-high-tips" rows="3" placeholder="Anchoring early conversations to outcomes&#10;Public challenges need confident boundary-setting&#10;Specific credit lands harder than generic thanks"></textarea></div>
+      </div>
+      <div class="ending-panel" id="ending-mid">
+        <div class="field"><label>Title</label><input type="text" id="e-mid-title" placeholder="e.g. Grudging respect"></div>
+        <div class="field"><label>Subtitle</label><input type="text" id="e-mid-sub" placeholder=""></div>
+        <div class="field"><label>Narrative paragraph</label><textarea id="e-mid-narr" rows="3"></textarea></div>
+        <div class="field"><label>Takeaways <span class="hint">one per line</span></label><textarea id="e-mid-tips" rows="3"></textarea></div>
+      </div>
+      <div class="ending-panel" id="ending-low">
+        <div class="field"><label>Title</label><input type="text" id="e-low-title" placeholder="e.g. Project complete. Relationship: complicated."></div>
+        <div class="field"><label>Subtitle</label><input type="text" id="e-low-sub" placeholder=""></div>
+        <div class="field"><label>Narrative paragraph</label><textarea id="e-low-narr" rows="3"></textarea></div>
+        <div class="field"><label>Takeaways <span class="hint">one per line</span></label><textarea id="e-low-tips" rows="3"></textarea></div>
+      </div>
+    </div>
+
+    <!-- ── AI & COLOURS ── -->
+    <div class="panel" id="panel-aicolors">
+      <div class="panel-header">
+        <div class="panel-title">AI &amp; <em>Colours</em></div>
+        <div class="panel-sub">Choose your AI provider and brand the scenario to match your organisation.</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">AI Provider</div></div>
+        <div class="field-row">
+          <div class="field">
+            <label>Provider</label>
+            <select id="ai-provider">
+              <option value="claude">🟠 Claude (Anthropic)</option>
+              <option value="openai">🟢 ChatGPT (OpenAI)</option>
+              <option value="gemini">🔵 Gemini (Google)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>API Key <span class="hint">stored in the HTML only</span></label>
+            <input type="password" id="ai-key" placeholder="Paste your key here" autocomplete="off">
+          </div>
+        </div>
+        <div class="tip-box" style="margin-bottom:0"><strong>Note:</strong> Your API key will be embedded in the generated HTML. Keep the file secure and don't share it publicly. For public courses, use the Apps Script proxy approach instead.</div>
+      </div>
+      <div class="card" style="margin-top:1rem">
+        <div class="card-header"><div class="card-title">Colour Scheme</div></div>
+        <div class="field-row three">
+          <div class="field">
+            <label>SME colour</label>
+            <div class="color-field">
+              <input type="color" id="col-sme" value="#2D3A5C" oninput="syncColor('col-sme','col-sme-hex')">
+              <input type="text" id="col-sme-hex" value="#2D3A5C" oninput="syncColorHex('col-sme','col-sme-hex')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Learner colour</label>
+            <div class="color-field">
+              <input type="color" id="col-you" value="#1A4A3A" oninput="syncColor('col-you','col-you-hex')">
+              <input type="text" id="col-you-hex" value="#1A4A3A" oninput="syncColorHex('col-you','col-you-hex')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Coach colour</label>
+            <div class="color-field">
+              <input type="color" id="col-coach" value="#4A2D6B" oninput="syncColor('col-coach','col-coach-hex')">
+              <input type="text" id="col-coach-hex" value="#4A2D6B" oninput="syncColorHex('col-coach','col-coach-hex')">
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Background</label>
+            <div class="color-field">
+              <input type="color" id="col-bg" value="#F7F5F0" oninput="syncColor('col-bg','col-bg-hex')">
+              <input type="text" id="col-bg-hex" value="#F7F5F0" oninput="syncColorHex('col-bg','col-bg-hex')">
+            </div>
+          </div>
+          <div class="field">
+            <label>Card surface</label>
+            <div class="color-field">
+              <input type="color" id="col-surface" value="#FFFFFF" oninput="syncColor('col-surface','col-surface-hex')">
+              <input type="text" id="col-surface-hex" value="#FFFFFF" oninput="syncColorHex('col-surface','col-surface-hex')">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SMART TOOLS ── -->
+    <div class="panel" id="panel-smart">
+      <div class="panel-header">
+        <div class="panel-title">Smart <em>Analysis</em></div>
+        <div class="panel-sub">AI-powered checks that run against your scenario before you export. Catch issues early.</div>
+      </div>
+
+      <div class="smart-panel">
+        <div class="smart-panel-header">
+          <div class="smart-icon" style="background:var(--green-bg)">🎯</div>
+          <div><div class="smart-title">Learning Objective Validator</div><div style="font-size:11px;color:var(--text3)">Does the scenario actually assess what you said it would?</div></div>
+          <button class="btn btn-ghost btn-sm smart-run-btn" onclick="runValidator()"><span id="val-spinner"></span> Run check</button>
+        </div>
+        <div class="smart-result" id="val-result"></div>
+      </div>
+
+      <div class="smart-panel">
+        <div class="smart-panel-header">
+          <div class="smart-icon" style="background:var(--amber-bg)">📊</div>
+          <div><div class="smart-title">Difficulty Preview</div><div style="font-size:11px;color:var(--text3)">How hard will each scene feel to a learner?</div></div>
+          <button class="btn btn-ghost btn-sm smart-run-btn" onclick="runDifficulty()"><span id="diff-spinner"></span> Analyse</button>
+        </div>
+        <div class="smart-result" id="diff-result"></div>
+      </div>
+
+      <div class="smart-panel">
+        <div class="smart-panel-header">
+          <div class="smart-icon" style="background:var(--blue-bg)">🎭</div>
+          <div><div class="smart-title">Tone Consistency Check</div><div style="font-size:11px;color:var(--text3)">Is the SME's voice consistent across all scenes?</div></div>
+          <button class="btn btn-ghost btn-sm smart-run-btn" onclick="runToneCheck()"><span id="tone-spinner"></span> Check tone</button>
+        </div>
+        <div class="smart-result" id="tone-result"></div>
+      </div>
+
+      <div class="tip-box">These tools use your configured AI provider. Make sure your API key is set in <strong>AI &amp; Colours</strong> before running.</div>
+    </div>
+
+    <!-- ── CHARACTER LIBRARY ── -->
+    <div class="panel" id="panel-library">
+      <div class="panel-header">
+        <div class="panel-title">Character <em>Library</em></div>
+        <div class="panel-sub">Save characters to reuse across scenarios. Load a saved character into your current build.</div>
+      </div>
+      <div class="row-actions" style="margin-bottom:1rem;margin-top:0">
+        <button class="btn btn-primary btn-sm" onclick="saveCharToLibrary()">+ Save current SME</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearLibrary()">Clear library</button>
+      </div>
+      <div class="char-lib-grid" id="char-lib-grid"></div>
+      <div id="char-lib-empty" style="font-size:13px;color:var(--text3);padding:1rem 0">No saved characters yet. Build a character and click Save.</div>
+
+      <div class="section-divider"></div>
+      <div class="card-title" style="margin-bottom:.75rem">Share scenario config</div>
+      <div style="font-size:12.5px;color:var(--text2);margin-bottom:.75rem">Export your scenario as JSON to share with other IDs. They can import it in one click.</div>
+      <div class="row-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showShareJSON()">Show JSON</button>
+        <button class="btn btn-primary btn-sm" onclick="copyShareJSON()">Copy to clipboard</button>
+      </div>
+      <div class="json-box" id="share-json-box" style="display:none;margin-top:.75rem"></div>
+    </div>
+
+    <!-- ── EXPORT ── -->
+    <div class="panel" id="panel-export">
+      <div class="panel-header">
+        <div class="panel-title">Preview &amp; <em>Export</em></div>
+        <div class="panel-sub">Generate your scenario, preview it live, then download for Rise or Storyline.</div>
+      </div>
+      <div class="export-grid">
+        <div class="export-card">
+          <div class="export-card-icon">👁</div>
+          <div class="export-card-title">Live Preview</div>
+          <div class="export-card-desc">Test the scenario right here before downloading. Runs exactly as it will in Rise.</div>
+          <button class="btn btn-ghost btn-full" onclick="generatePreview()">Generate preview</button>
+        </div>
+        <div class="export-card">
+          <div class="export-card-icon">📦</div>
+          <div class="export-card-title">Download HTML</div>
+          <div class="export-card-desc">Single index.html file. Zip it yourself and upload to Rise's code block.</div>
+          <button class="btn btn-primary btn-full" onclick="downloadHTML()">Download HTML</button>
+        </div>
+      </div>
+      <iframe id="preview-frame" class="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────
+const state = {
+  sme:{ skin:'#C8956A', hair:'#1A1410', clothing:'#2D3A5C', emotion:'tense' },
+  acts: []
+};
+
+// ── INSPIRATION CHIPS ─────────────────────────────────────────────────────
+const INSPIRATIONS = [
+  { label:'😤 Difficult SME', learner:'Instructional Designer', character:'A senior SME who is dismissive and treats the ID as a slide formatter', conflict:'The SME sends 200 slides and tells the ID to clean them up, with no learning objectives in sight', skill:'Asserting the ID role, anchoring conversations to outcomes, managing an expert who undervalues the design process' },
+  { label:'😠 Angry Customer', learner:'Customer Service Representative', character:'A frustrated customer who has been waiting 3 weeks for a refund and feels ignored', conflict:'The customer escalates on a call, threatens to leave, and demands to speak to a manager', skill:'De-escalation, genuine empathy before problem-solving, giving concrete commitments not scripted responses' },
+  { label:'💼 Performance Review', learner:'Team Manager', character:'A team member whose performance has slipped over two months, who is defensive and hasn\'t opened up about why', conflict:'The manager needs to address the performance issue without making the employee feel judged or managed out', skill:'Creating psychological safety, asking curious questions before making judgements, coaching not managing' },
+  { label:'📊 Stakeholder Pushback', learner:'Instructional Designer', character:'A project sponsor who wants to add more content to an already overloaded course', conflict:'The sponsor challenges the ID\'s structure and wants another module added that would hurt completion rates', skill:'Defending evidence-based design decisions using business language, redirecting without conflict' },
+  { label:'🤝 Sales Objection', learner:'Sales Representative', character:'A procurement manager who is genuinely interested but pushes back hard on price', conflict:'The prospect says the price is twice their budget and seems ready to walk', skill:'Holding value without discounting, exploring the real objection behind the stated one' },
+  { label:'⚖ Ethics Under Pressure', learner:'Team Member', character:'A senior manager who wants to skip a compliance step to meet a deadline', conflict:'The manager asks the employee to backfill documentation after launch, which violates audit requirements', skill:'Declining a request from authority clearly and professionally without damaging the relationship' },
+  { label:'🏥 Clinical Handover', learner:'Junior Nurse', character:'A consultant who communicates in shorthand and doesn\'t invite questions', conflict:'The learner needs critical patient information but the consultant is rushed and dismissive', skill:'Assertive communication in a hierarchy, using SBAR, escalating patient safety concerns confidently' },
+  { label:'🎓 Parent Complaint', learner:'Teacher or School Administrator', character:'An angry parent who believes their child has been treated unfairly', conflict:'The parent arrives unannounced, is visibly upset, and makes accusations about the teacher\'s conduct', skill:'Active listening, separating emotion from fact, de-escalation in a sensitive context' }
+];
+
+let generatedConfig = null;
+
+function renderInspirationChips(){
+  const container = document.getElementById('inspiration-chips');
+  container.innerHTML = INSPIRATIONS.map((chip,i) =>
+    `<div class="chip" onclick="fillFromChip(${i})">${chip.label}</div>`
+  ).join('');
+}
+
+function fillFromChip(i){
+  const chip = INSPIRATIONS[i];
+  setValue('gen-learner', chip.learner);
+  setValue('gen-character', chip.character);
+  setValue('gen-conflict', chip.conflict);
+  setValue('gen-skill', chip.skill);
+}
+
+function clearGenForm(){
+  ['gen-learner','gen-character','gen-conflict','gen-skill','gen-key'].forEach(id=>setValue(id,''));
+  document.getElementById('gen-status').textContent = '';
+  resetGenerate();
+}
+
+function resetGenerate(){
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('gen-loading').classList.remove('show');
+  document.getElementById('gen-form').style.display = '';
+  generatedConfig = null;
+}
+
+async function generateScenario(){
+  const learner   = gv('gen-learner');
+  const character = gv('gen-character');
+  const conflict  = gv('gen-conflict');
+  const skill     = gv('gen-skill');
+  const key       = gv('gen-key');
+  const provider  = gv('gen-provider');
+
+  if(!learner||!character||!conflict||!skill){
+    document.getElementById('gen-status').textContent = 'Fill in all four fields first.';
+    return;
+  }
+  if(!key){
+    document.getElementById('gen-status').textContent = 'Add your API key.';
+    return;
+  }
+
+  // also copy key/provider to the main ai settings for export
+  setValue('ai-key', key);
+  setValue('ai-provider', provider);
+
+  document.getElementById('gen-form').style.display = 'none';
+  document.getElementById('summary-card').classList.remove('show');
+  document.getElementById('gen-loading').classList.add('show');
+
+  const steps = ['Reading your description…','Designing the character…','Writing scenes and dialogue…','Building coaching context…','Crafting the endings…','Finishing up…'];
+  let stepIdx = 0;
+  const stepLabel = document.getElementById('gen-step-label');
+  const stepInterval = setInterval(()=>{ stepLabel.textContent = steps[Math.min(stepIdx++, steps.length-1)]; }, 3000);
+
+  const prompt = `You are an expert instructional designer and scenario writer. Generate a complete e-learning scenario config based on this brief.
+
+LEARNER ROLE: ${learner}
+CHARACTER: ${character}
+CONFLICT: ${conflict}
+SKILL ASSESSED: ${skill}
+
+Generate a realistic, nuanced workplace scenario with:
+- A clear title
+- 3 acts (each with a short name), each act containing 2-3 scenes
+- Each scene must have: a short context label, a context detail (one sentence), the character's dialogue (1-3 sentences, in character), optional narrator text (one sentence of context), a learner prompt (e.g. "How do you respond?"), an AI coaching context (2-3 sentences describing the situation, power dynamics, and what a skilled response looks like — this is used to evaluate the learner), and a scoreGain (8-14)
+- A character name, job title, and personality paragraph (3-4 sentences)
+- Three endings: strong (score 80+), middling (score 50-79), needs work (below 50) — each with title, one-line subtitle, narrative paragraph (2-3 sentences), and 2-3 takeaway tips (one per line)
+- A score meter label (e.g. "Collaboration Score"), low label (e.g. "Tense"), high label (e.g. "Collaborative")
+
+IMPORTANT: Make the character's dialogue feel genuinely human and specific to their role. Make the coaching context rich enough for an AI to evaluate nuanced free-text responses. Make Act 3 scenes harder to navigate than Act 1.
+
+Return ONLY valid JSON in exactly this structure (no markdown, no preamble):
+{
+  "title": "...",
+  "learnerRole": "...",
+  "skill": "...",
+  "objective": "...",
+  "scoreLabel": "...",
+  "scoreLow": "...",
+  "scoreHigh": "...",
+  "tone": "professional",
+  "smeName": "...",
+  "smeRole": "...",
+  "smePersonality": "...",
+  "smeEmotion": "tense",
+  "coachName": "Learning Coach",
+  "coachStyle": "direct",
+  "acts": [
+    {
+      "name": "Act 1 · ...",
+      "scenes": [
+        {
+          "icon": "💬",
+          "label": "...",
+          "detail": "...",
+          "smeText": "...",
+          "narratorText": "...",
+          "prompt": "...",
+          "context": "...",
+          "scoreGain": 12
+        }
+      ]
+    }
+  ],
+  "endings": {
+    "high": { "title": "...", "sub": "...", "narr": "...", "tips": "tip 1\ntip 2\ntip 3" },
+    "mid":  { "title": "...", "sub": "...", "narr": "...", "tips": "tip 1\ntip 2" },
+    "low":  { "title": "...", "sub": "...", "narr": "...", "tips": "tip 1\ntip 2" }
+  }
+}`;
+
+  try {
+    let text = '';
+    if(provider === 'claude'){
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+      });
+      const d = await res.json();
+      if(d.error) throw new Error(d.error.message);
+      text = d.content[0].text;
+    } else if(provider === 'openai'){
+      const res = await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body:JSON.stringify({model:'gpt-4o',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+      });
+      const d = await res.json();
+      if(d.error) throw new Error(d.error.message);
+      text = d.choices[0].message.content;
+    } else if(provider === 'gemini'){
+      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key='+key,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:4000}})
+      });
+      const d = await res.json();
+      if(d.error) throw new Error(d.error.message);
+      text = d.candidates[0].content.parts[0].text;
+    }
+
+    clearInterval(stepInterval);
+    const cleaned = text.replace(/```json/g,'').replace(/```/g,'').trim();
+    generatedConfig = JSON.parse(cleaned);
+    showSummaryCard(generatedConfig);
+
+  } catch(err){
+    clearInterval(stepInterval);
+    document.getElementById('gen-loading').classList.remove('show');
+    document.getElementById('gen-form').style.display = '';
+    document.getElementById('gen-status').textContent = 'Error: ' + err.message;
+  }
+}
+
+function showSummaryCard(cfg){
+  document.getElementById('gen-loading').classList.remove('show');
+  const card = document.getElementById('summary-card');
+
+  document.getElementById('sum-title').textContent = cfg.title || 'Generated scenario';
+  document.getElementById('sum-scenario').innerHTML = '<strong>' + (cfg.title||'') + '</strong>';
+  document.getElementById('sum-learner').innerHTML = 'Playing the role of a <strong>' + (cfg.learnerRole||'') + '</strong>';
+  document.getElementById('sum-character').innerHTML = '<strong>' + (cfg.smeName||'') + '</strong>, ' + (cfg.smeRole||'') + ' — ' + (cfg.smePersonality||'').split('.')[0] + '.';
+  document.getElementById('sum-skill').textContent = cfg.skill || cfg.objective || '';
+
+  const actsEl = document.getElementById('sum-acts');
+  actsEl.innerHTML = (cfg.acts||[]).map(a =>
+    `<div class="summary-act"><span class="summary-act-name">${a.name}</span>${a.scenes.length} scene${a.scenes.length!==1?'s':''}</div>`
+  ).join('');
+
+  document.getElementById('sum-endings').innerHTML =
+    '🟢 ' + (cfg.endings?.high?.title||'Strong') + ' &nbsp;·&nbsp; ' +
+    '🟡 ' + (cfg.endings?.mid?.title||'Middling') + ' &nbsp;·&nbsp; ' +
+    '🔴 ' + (cfg.endings?.low?.title||'Needs work');
+
+  card.classList.add('show');
+  card.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function confirmGenerated(){
+  if(!generatedConfig) return;
+  loadFromConfig(generatedConfig);
+  // sync provider/key from gen form into ai panel
+  setValue('ai-provider', gv('gen-provider'));
+  setValue('ai-key', gv('gen-key'));
+  showPanel('scenario');
+  // show a brief success message
+  document.getElementById('gen-status').textContent = '';
+}
+
+    data:{
+      title:'Working with a Difficult SME', learnerRole:'Instructional Designer', skill:'SME relationship management',
+      objective:'Learners will establish their design role with a resistant SME without damaging the relationship',
+      scoreLabel:'Collaboration Score', scoreLow:'Tense', scoreHigh:'Collaborative', tone:'professional',
+      smeName:'Raj Mehta', smeRole:'Senior Compliance SME',
+      smePersonality:'Experienced and opinionated. 22 years in compliance. Sees IDs as slide formatters. Not malicious — just efficient. Warms up when he feels genuinely heard.',
+      smeEmotion:'tense', coachName:'Learning Coach', coachStyle:'direct',
+      acts:[
+        { name:'Act 1 · The Slide Dump', scenes:[
+          { icon:'✉', label:'Email — Monday 9:14 AM', detail:'Day 1. You\'ve sent Raj a kickoff email.',
+            smeText:'Sure. I\'ll send you my slides. There are about 200 of them — the content is all there, you just need to clean them up.',
+            narratorText:'You open the attachment. 214 slides. Dense text, no structure. No learning objectives.',
+            prompt:'How do you respond to Raj\'s email?',
+            context:'Day 1. Raj sees the ID as a formatter. He sent 214 slides with no learning objectives. The ID needs to establish their role and anchor the project to outcomes without confrontation.',
+            scoreGain:12 },
+          { icon:'📹', label:'Video call — Wednesday 2:00 PM', detail:'Kickoff call. Raj joins 8 minutes late.',
+            smeText:'I\'ve got about 20 minutes. The slides are all there — everything the learners need to know is in them.',
+            narratorText:'You need to shift from what content exists to what learners need to do.',
+            prompt:'How do you open this conversation?',
+            context:'First video call. Raj is impatient. The ID needs to shift from content volume to learning outcomes without triggering defensiveness.',
+            scoreGain:10 }
+        ]},
+        { name:'Act 2 · The Credentials Challenge', scenes:[
+          { icon:'📹', label:'Stakeholder review call', detail:'You, Raj, and two stakeholders review your proposed structure.',
+            smeText:'These instructional design frameworks don\'t always translate to technical domains. Do you actually have a background in compliance?',
+            narratorText:'The stakeholders are watching. A public challenge to your credibility.',
+            prompt:'How do you respond with stakeholders present?',
+            context:'Raj has publicly challenged the ID\'s credibility. The ID must respond confidently without making Raj an enemy.',
+            scoreGain:12 }
+        ]},
+        { name:'Act 3 · The Deadline Ghost', scenes:[
+          { icon:'✉', label:'Review cycle — 10 days overdue', detail:'Module 1 draft has been with Raj for 10 days. Nothing.',
+            smeText:'',
+            narratorText:'No response. No acknowledgement. The sponsor call is next week.',
+            prompt:'What do you do?',
+            context:'Raj has gone silent. The review is overdue. The ID must act firmly without escalating prematurely.',
+            scoreGain:10 }
+        ]}
+      ],
+      endings:{
+        high:{ title:'A genuine collaborator', sub:'Raj messages after launch: "People are actually reading the notes section."', narr:'You navigated every friction point with precision — asserting your role without aggression and holding boundaries without breaking trust.', tips:'Anchor early conversations to outcomes\nPublic challenges need confident boundary-setting\nChanging the format solves more than changing the deadline' },
+        mid:{ title:'Grudging respect', sub:'Raj wouldn\'t ask for you — but he wouldn\'t block you either.', narr:'The project is complete and the course is solid. A few moments where you played it too safe left Raj seeing you as competent but not essential.', tips:'When a SME reveals real frustration, treat it as a turning point\nNeutral follow-ups miss the chance to reset the dynamic' },
+        low:{ title:'Project complete. Relationship: complicated.', sub:'The course shipped. Raj has already moved on.', narr:'The project got done, but it was a grind. Several moments where a strategic response could have shifted the dynamic were missed.', tips:'Dismissive SMEs often have a legitimate frustration underneath\nAvoid escalating before having a direct conversation' }
+      }
+    }
+  },
+  { id:'customer', icon:'😤', name:'Angry Customer', desc:'Service rep handles a frustrated customer escalating a complaint.', tag:'Customer Service', color:'#8B2020',
+    data:{
+      title:'Handling a Frustrated Customer', learnerRole:'Customer Service Representative', skill:'De-escalation and empathy',
+      objective:'Learners will de-escalate an angry customer interaction while maintaining professionalism',
+      scoreLabel:'Resolution Score', scoreLow:'Escalating', scoreHigh:'Resolved', tone:'empathetic',
+      smeName:'Sarah Chen', smeRole:'Frustrated Customer',
+      smePersonality:'Has been waiting 3 weeks for a refund. Feels ignored and disrespected. Not unreasonable — just at the end of her patience. Responds well to genuine empathy and clear action, badly to scripted responses or deflection.',
+      smeEmotion:'tense', coachName:'Service Coach', coachStyle:'warm',
+      acts:[
+        { name:'Opening — First Contact', scenes:[
+          { icon:'📞', label:'Inbound call', detail:'Sarah has been on hold for 12 minutes.',
+            smeText:'Finally. I\'ve been waiting three weeks for my refund and every time I call I get told to wait. This is completely unacceptable.',
+            narratorText:'Sarah\'s account shows a refund request from 21 days ago, still marked as processing.',
+            prompt:'How do you open your response?',
+            context:'Customer has been waiting 3 weeks for a refund. She is angry but justified. The rep needs to acknowledge her frustration genuinely before attempting any resolution.',
+            scoreGain:12 }
+        ]},
+        { name:'Resolution — Finding the Path', scenes:[
+          { icon:'📞', label:'Same call — 5 minutes in', detail:'Sarah has calmed slightly but is still on edge.',
+            smeText:'So what are you actually going to do about this? I don\'t want another reference number.',
+            narratorText:'You can see the refund is stuck in a processing queue. You have authority to manually escalate it.',
+            prompt:'What do you say and do?',
+            context:'The customer wants a concrete commitment, not a process explanation. The rep has the ability to manually escalate — the question is how they communicate this.',
+            scoreGain:14 }
+        ]}
+      ],
+      endings:{
+        high:{ title:'Issue resolved, trust rebuilt', sub:'Sarah leaves a positive review: "First rep who actually listened."', narr:'You handled one of the hardest service interactions well — genuine empathy followed by clear action. Sarah felt heard, not processed.', tips:'Acknowledge feelings before offering solutions\nConcrete commitments outperform process explanations\nPersonalise — use the customer\'s name and reference specifics' },
+        mid:{ title:'Issue resolved, relationship neutral', sub:'Sarah got her refund. She won\'t complain. She won\'t return either.', narr:'The refund was processed and the call ended professionally. But the interaction never moved from transactional to human.', tips:'Empathy first — customers need to feel heard before they can hear you\nAvoid scripted language even when using approved phrases' },
+        low:{ title:'Escalated to supervisor', sub:'Sarah asked to speak to your manager.', narr:'The interaction escalated because the customer didn\'t feel genuinely acknowledged. The refund issue was solvable — the communication style made it worse.', tips:'Defensive responses amplify customer anger\nNever tell an angry customer to calm down\nOwn the problem even if it wasn\'t your fault' }
+      }
+    }
+  },
+  { id:'performance', icon:'💼', name:'Performance Conversation', desc:'Manager navigates a difficult performance discussion with a team member.', tag:'Leadership', color:'#4A2D6B',
+    data:{
+      title:'A Difficult Performance Conversation', learnerRole:'Team Manager', skill:'Difficult conversation management',
+      objective:'Learners will deliver performance feedback clearly and constructively without damaging the working relationship',
+      scoreLabel:'Trust Score', scoreLow:'Defensive', scoreHigh:'Constructive', tone:'challenging',
+      smeName:'Marcus Williams', smeRole:'Team Member',
+      smePersonality:'Has been underperforming for two months. Knows it. Defensive because he feels the team environment has changed and he hasn\'t been supported. Won\'t open up unless he feels safe. Responds badly to vague criticism, well to specific examples and genuine curiosity.',
+      smeEmotion:'neutral', coachName:'Leadership Coach', coachStyle:'mentor',
+      acts:[
+        { name:'Opening the Conversation', scenes:[
+          { icon:'🗣', label:'1:1 meeting', detail:'You\'ve scheduled time with Marcus. He looks tense.',
+            smeText:'Is this about the Henderson project? Because I already explained what happened with the timeline.',
+            narratorText:'Marcus is defensive before you\'ve said anything. He knows why he\'s here.',
+            prompt:'How do you open the conversation?',
+            context:'Marcus is already defensive. The manager needs to create psychological safety before raising performance concerns, or Marcus will shut down entirely.',
+            scoreGain:12 }
+        ]},
+        { name:'Getting to the Root', scenes:[
+          { icon:'🗣', label:'Same meeting — 10 minutes in', detail:'Marcus has admitted the work has slipped but hasn\'t said why.',
+            smeText:'I don\'t know. I just... it\'s been hard to stay focused lately. It\'s not the work itself.',
+            narratorText:'This is the opening. Something is going on beyond the performance issue.',
+            prompt:'How do you respond to this?',
+            context:'Marcus has just revealed there is something personal behind the performance dip. The manager has a choice: push for specifics or create space. This moment will determine whether the conversation becomes a disciplinary or a coaching conversation.',
+            scoreGain:14 }
+        ]}
+      ],
+      endings:{
+        high:{ title:'A turning point conversation', sub:'Marcus sends you a message the next morning: "Thanks for actually listening yesterday."', narr:'You turned what could have been a disciplinary conversation into a coaching moment. Marcus feels supported, not managed out.', tips:'Curiosity before judgement — ask why before you explain what\nSpecific examples are kinder than vague impressions\nPhysical environment matters — side by side beats face to face' },
+        mid:{ title:'Acknowledged, not resolved', sub:'Marcus nods along. The meeting ends. Nothing changes yet.', narr:'The conversation was professional and fair. But it didn\'t reach the human level that would have made it transformative.', tips:'Performance conversations need to be two-way to work\nThe manager who talks most learns least' },
+        low:{ title:'Marcus feels managed, not led', sub:'HR gets an email from Marcus that afternoon.', narr:'The conversation focused too much on the problem and not enough on the person. Marcus left feeling judged rather than supported.', tips:'Never open a performance conversation by listing failures\nAsking "what\'s going on?" costs nothing and changes everything' }
+      }
+    }
+  },
+  { id:'stakeholder', icon:'📊', name:'Stakeholder Pushback', desc:'ID defends their design decisions when a sponsor challenges the approach.', tag:'Instructional Design', color:'#1A4A3A',
+    data:{
+      title:'Defending Your Design Decisions', learnerRole:'Instructional Designer', skill:'Stakeholder communication',
+      objective:'Learners will defend evidence-based design decisions confidently while maintaining stakeholder relationships',
+      scoreLabel:'Credibility Score', scoreLow:'Undermined', scoreHigh:'Trusted', tone:'professional',
+      smeName:'Diana Park', smeRole:'Project Sponsor',
+      smePersonality:'Busy executive. Doesn\'t understand instructional design but has strong opinions about what "good training" looks like (usually: more content, shorter time). Responds to business language and ROI framing. Not hostile — just impatient and used to getting her way.',
+      smeEmotion:'neutral', coachName:'Design Coach', coachStyle:'direct',
+      acts:[
+        { name:'The Review Meeting', scenes:[
+          { icon:'📹', label:'Stakeholder review', detail:'Diana has reviewed the prototype.',
+            smeText:'This is good but I think we need more content. The learners need to understand the full regulatory background. Can we add another module?',
+            narratorText:'The course is already at the upper limit of learner attention. Adding another module would hurt completion rates.',
+            prompt:'How do you respond?',
+            context:'Diana wants to add content for reassurance, not learning value. The ID needs to redirect without dismissing her concern — using data and business language, not design jargon.',
+            scoreGain:12 }
+        ]}
+      ],
+      endings:{
+        high:{ title:'Trusted design partner', sub:'Diana introduces you to the CFO as "the person who actually made this work."', narr:'You spoke Diana\'s language — business outcomes, not design theory. She now sees you as a strategic partner, not a vendor.', tips:'Translate design decisions into business outcomes\nData beats opinion in every boardroom\nGive stakeholders something to say yes to, not just a no' },
+        mid:{ title:'Respected but overruled', sub:'The extra module gets added. Completion rates drop 18%.', narr:'You made a professional case but couldn\'t shift the dynamic from consultant to partner. Diana got what she asked for, not what she needed.', tips:'Frame pushback as protecting the business outcome, not defending your design' },
+        low:{ title:'Yes, and then regret', sub:'Six months later: "Why isn\'t anyone completing this training?"', narr:'You agreed to everything. The course ballooned. No one finishes it. You\'re now being asked to fix a problem you predicted.', tips:'Agreeing under pressure is not collaboration — it\'s abdication\nDocument your recommendations even when overruled' }
+      }
+    }
+  },
+  { id:'sales', icon:'🤝', name:'Sales Objection', desc:'Sales rep handles a prospect who is pushing back on price and commitment.', tag:'Sales', color:'#8B6914',
+    data:{
+      title:'Handling a Price Objection', learnerRole:'Sales Representative', skill:'Objection handling',
+      objective:'Learners will handle price objections by reframing value rather than discounting',
+      scoreLabel:'Momentum Score', scoreLow:'Stalled', scoreHigh:'Moving forward', tone:'conversational',
+      smeName:'Tom Bradley', smeRole:'Potential Client',
+      smePersonality:'Procurement manager. Seen every sales technique. Genuinely interested but under budget pressure. Uses price objections as a test — he wants to see if the rep panics and discounts, or holds the value. Responds to honesty and specifics.',
+      smeEmotion:'neutral', coachName:'Sales Coach', coachStyle:'direct',
+      acts:[
+        { name:'The Objection', scenes:[
+          { icon:'📞', label:'Discovery call — near the end', detail:'The call has gone well. Then Tom says:',
+            smeText:'Look, I like what I\'m hearing but the price is significantly above what we budgeted. We\'re probably looking at half that number.',
+            narratorText:'The deal is real. Tom\'s interest is genuine. This is a test, not a dealbreaker.',
+            prompt:'How do you respond?',
+            context:'Classic price objection from a qualified prospect. The rep needs to resist the urge to discount immediately and instead explore the value gap. Panic discounting signals low confidence in the product.',
+            scoreGain:14 }
+        ]}
+      ],
+      endings:{
+        high:{ title:'Deal moves forward', sub:'Tom emails that afternoon: "Let\'s set up the commercial conversation."', narr:'You held the value without being arrogant about it. Tom tested your conviction and you passed.', tips:'Price objections are often value objections in disguise\nDiscounting immediately signals you didn\'t believe the price either\nCuriosity about the budget number often reveals flexibility' },
+        mid:{ title:'Conversation continues', sub:'Tom says he\'ll discuss internally. You\'ll hear back.', narr:'You didn\'t close but you didn\'t lose either. The discount you offered bought time, not commitment.', tips:'Partial discounts without conditions weaken your position' },
+        low:{ title:'Discounted and devalued', sub:'Tom takes the discount and asks for more.', narr:'You discounted the moment you felt pressure. Tom now believes the original price was inflated — and he\'s right to think so.', tips:'Never lead with a discount\nEvery concession needs a condition to protect value' }
+      }
+    }
+  },
+  { id:'compliance', icon:'⚖', name:'Ethics Challenge', desc:'Employee navigates pressure to cut corners on a compliance requirement.', tag:'Compliance', color:'#3D3D3D',
+    data:{
+      title:'Standing Firm Under Compliance Pressure', learnerRole:'Team Member', skill:'Ethical decision-making',
+      objective:'Learners will maintain compliance standards when faced with pressure to cut corners',
+      scoreLabel:'Integrity Score', scoreLow:'Compromised', scoreHigh:'Upheld', tone:'challenging',
+      smeName:'Kevin Nash', smeRole:'Senior Manager',
+      smePersonality:'Results-focused manager under deadline pressure. Not corrupt — just willing to bend rules he sees as bureaucratic. Uses authority and urgency to get compliance. Backs down when challenged calmly with specific consequences.',
+      smeEmotion:'tense', coachName:'Ethics Guide', coachStyle:'socratic',
+      acts:[
+        { name:'The Pressure', scenes:[
+          { icon:'💬', label:'Team meeting', detail:'Kevin pulls you aside after the meeting.',
+            smeText:'Look, we both know the full sign-off process takes 6 weeks and we don\'t have 6 weeks. Just get the preliminary approval and we\'ll backfill the documentation after launch.',
+            narratorText:'Backfilling documentation after the fact violates the company\'s audit requirements.',
+            prompt:'How do you respond?',
+            context:'Kevin is asking the employee to violate audit requirements under time pressure. The employee needs to decline clearly without damaging the relationship or creating unnecessary conflict.',
+            scoreGain:14 }
+        ]}
+      ],
+      endings:{
+        high:{ title:'Standard upheld', sub:'The audit three months later finds zero issues with this project.', narr:'You held the line clearly and professionally. Kevin pushed back but ultimately respected the boundary — and the project launched compliantly, if slightly later.', tips:'Name the specific consequence, not just the rule\nOffer an alternative rather than just a no\nDocument the conversation regardless of outcome' },
+        mid:{ title:'Escalated to compliance team', sub:'The compliance team backs you up. Kevin is not pleased.', narr:'You escalated correctly but the manner created friction. The right outcome with relationship damage.', tips:'Escalate as a last resort, not a first response\nGiving someone a face-saving way to back down preserves the relationship' },
+        low:{ title:'Documentation backfilled. Audit finds irregularities.', sub:'HR investigation follows.', narr:'The shortcut created a much larger problem. You participated in something you knew was wrong under pressure.', tips:'The cost of compliance is almost always lower than the cost of non-compliance\nShort-term discomfort beats long-term consequence every time' }
+      }
+    }
+  },
+  { id:'blank', icon:'✨', name:'Custom Scenario', desc:'Build your own scenario from scratch with your own characters and context.', tag:'Custom', color:'#666',
+    data:null }
+];
+
+// ── UI NAVIGATION ─────────────────────────────────────────────────────────
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const panel = document.getElementById('panel-'+id);
+  if(panel) panel.classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n=>{ if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active'); });
+}
+
+// ── ACTS & SCENES ─────────────────────────────────────────────────────────
+let actCounter = 0;
+let sceneCounter = 0;
+
+function loadActs(acts){
+  document.getElementById('acts-container').innerHTML = '';
+  actCounter=0; sceneCounter=0;
+  acts.forEach(a=>addAct(a));
+  updateSceneBadge();
+}
+
+function addAct(data){
+  actCounter++;
+  const id = 'act-'+actCounter;
+  const div = document.createElement('div');
+  div.className='act-block'; div.id=id;
+  div.innerHTML=`
+    <div class="act-header">
+      <span class="act-handle">⠿</span>
+      <input class="act-name-input" placeholder="Act name..." value="${data&&data.name?data.name:''}">
+      <button class="btn btn-ghost btn-sm" onclick="removeAct('${id}')">✕</button>
+    </div>
+    <div class="act-scenes" id="${id}-scenes"></div>`;
+  document.getElementById('acts-container').appendChild(div);
+  const addBtn = document.createElement('button');
+  addBtn.className='add-scene-btn';
+  addBtn.innerHTML='+ Add scene';
+  addBtn.onclick=()=>addScene(id+'-scenes');
+  div.querySelector('.act-scenes').appendChild(addBtn);
+  if(data&&data.scenes) data.scenes.forEach(s=>addScene(id+'-scenes',s));
+  updateSceneBadge();
+}
+
+function removeAct(id){
+  const el = document.getElementById(id);
+  if(el) el.remove();
+  updateSceneBadge();
+}
+
+function addScene(containerId, data){
+  sceneCounter++;
+  const sid = 'scene-'+sceneCounter;
+  const container = document.getElementById(containerId);
+  const addBtn = container.querySelector('.add-scene-btn');
+  const row = document.createElement('div');
+  row.className='scene-row'; row.id=sid;
+  row.innerHTML=`
+    <div class="scene-row-header">
+      <span class="scene-number">Scene</span>
+      <select class="scene-icon-select" id="${sid}-icon">
+        ${['💬','✉','📹','📞','🗣','💼','📊','⚖','🤝'].map(i=>`<option${(data&&data.icon===i)?' selected':''}>${i}</option>`).join('')}
+      </select>
+      <input type="text" placeholder="Context label..." value="${data&&data.label?data.label:''}" id="${sid}-label" style="flex:1">
+      <button class="btn btn-ghost btn-sm scene-del" onclick="removeScene('${sid}')">✕</button>
+    </div>
+    <div class="field-row" style="margin-bottom:.75rem">
+      <div>
+        <label>Context detail</label>
+        <input type="text" id="${sid}-detail" placeholder="e.g. Raj joins 8 minutes late" value="${data&&data.detail?data.detail:''}">
+      </div>
+      <div>
+        <label>Score gain <span class="hint">points for correct answer</span></label>
+        <input type="text" id="${sid}-score" placeholder="10" value="${data&&data.scoreGain?data.scoreGain:10}" style="width:80px">
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:.75rem">
+      <label>SME dialogue <span class="hint">what the character says</span></label>
+      <textarea id="${sid}-sme" rows="2" placeholder="What does the character say in this scene?">${data&&data.smeText?data.smeText:''}</textarea>
+    </div>
+    <div class="field" style="margin-bottom:.75rem">
+      <label>Narrator text <span class="hint">italic context shown to learner</span></label>
+      <input type="text" id="${sid}-narrator" placeholder="e.g. You open the attachment. 214 slides..." value="${data&&data.narratorText?data.narratorText:''}">
+    </div>
+    <div class="field" style="margin-bottom:.75rem">
+      <label>Learner prompt <span class="hint">textarea placeholder text</span></label>
+      <input type="text" id="${sid}-prompt" placeholder="e.g. How do you respond?" value="${data&&data.prompt?data.prompt:''}">
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label>AI coaching context <span class="hint">what the AI needs to know to evaluate responses — be specific</span></label>
+      <textarea id="${sid}-context" rows="2" placeholder="Describe the situation, power dynamics, and what a skilled response looks like...">${data&&data.context?data.context:''}</textarea>
+    </div>`;
+  container.insertBefore(row, addBtn);
+  updateSceneBadge();
+}
+
+function removeScene(id){
+  const el = document.getElementById(id);
+  if(el) el.remove();
+  updateSceneBadge();
+}
+
+function updateSceneBadge(){
+  const count = document.querySelectorAll('.scene-row').length;
+  document.getElementById('scene-count-badge').textContent = count;
+}
+
+// ── CHARACTERS ─────────────────────────────────────────────────────────────
+function selectSkin(charId, el){
+  document.querySelectorAll('#'+charId+'-skin-swatches .swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.sme.skin = el.dataset.color;
+  updateCharPreview();
+}
+
+function selectHair(charId, el){
+  document.querySelectorAll('#'+charId+'-hair-swatches .swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.sme.hair = el.dataset.color;
+  updateCharPreview();
+}
+
+function selectClothing(charId, el){
+  document.querySelectorAll('#'+charId+'-clothing-swatches .swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  state.sme.clothing = el.dataset.color;
+  updateCharPreview();
+}
+
+function selectEmotion(charId, emotion, btn){
+  document.querySelectorAll('#sme-emotion-btns .emotion-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.sme.emotion = emotion;
+  updateCharPreview();
+}
+
+function selectEmotionByValue(charId, val){
+  document.querySelectorAll('#sme-emotion-btns .emotion-btn').forEach(b=>{
+    b.classList.toggle('selected', b.textContent.toLowerCase().includes(val));
+  });
+  state.sme.emotion = val;
+}
+
+function updateCharPreview(){
+  const skin = state.sme.skin;
+  const hair = state.sme.hair;
+  const clothing = state.sme.clothing;
+  const emotion = state.sme.emotion;
+  const darkenSkin = darken(skin, 20);
+  const svg = document.getElementById('preview-sme-svg');
+  if(!svg) return;
+  setFill(svg,'ps-clothing', clothing);
+  setFill(svg,'ps-collar', lighten(clothing,20));
+  setFill(svg,'ps-neck', skin);
+  setFill(svg,'ps-head', skin);
+  setFill(svg,'ps-hair1', hair);
+  setFill(svg,'ps-hair2', hair);
+  setFill(svg,'ps-earL', darkenSkin);
+  setFill(svg,'ps-earR', darkenSkin);
+  setFill(svg,'ps-browL', hair);
+  setFill(svg,'ps-browR', hair);
+  setFill(svg,'ps-nose', darkenSkin);
+  const mouths = { tense:'M38 74 Q50 71 62 74', neutral:'M38 74 Q50 75 62 74', warm:'M38 73 Q50 80 62 73' };
+  svg.getElementById('ps-mouth').setAttribute('d', mouths[emotion]||mouths.tense);
+  const name = document.getElementById('c-sme-name');
+  document.getElementById('sme-preview-label').textContent = name?name.value||'Character':'Character';
+}
+
+function setFill(svg, id, color){ const el=svg.getElementById(id); if(el) el.setAttribute('fill',color); }
+function darken(hex,pct){ return adjustColor(hex,-pct); }
+function lighten(hex,pct){ return adjustColor(hex,pct); }
+function adjustColor(hex,pct){
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  r=Math.max(0,Math.min(255,r+pct)); g=Math.max(0,Math.min(255,g+pct)); b=Math.max(0,Math.min(255,b+pct));
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+// ── COLOURS ───────────────────────────────────────────────────────────────
+function syncColor(colorId, hexId){ document.getElementById(hexId).value = document.getElementById(colorId).value; }
+function syncColorHex(colorId, hexId){
+  const val = document.getElementById(hexId).value;
+  if(/^#[0-9A-Fa-f]{6}$/.test(val)) document.getElementById(colorId).value = val;
+}
+
+// ── ENDINGS ───────────────────────────────────────────────────────────────
+function showEnding(level, btn){
+  document.querySelectorAll('.ending-tab').forEach(t=>t.classList.remove('active','high','mid','low'));
+  document.querySelectorAll('.ending-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active',level);
+  document.getElementById('ending-'+level).classList.add('active');
+}
+
+// ── SMART TOOLS ───────────────────────────────────────────────────────────
+async function callSmartAI(prompt){
+  const key = document.getElementById('ai-key').value.trim();
+  const provider = document.getElementById('ai-provider').value;
+  if(!key) throw new Error('Add your API key in AI & Colours first');
+  if(provider==='claude'){
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    const d = await res.json();
+    return d.content[0].text;
+  }
+  if(provider==='openai'){
+    const res = await fetch('https://api.openai.com/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body:JSON.stringify({model:'gpt-4o-mini',max_tokens:600,messages:[{role:'user',content:prompt}]})
+    });
+    const d = await res.json();
+    return d.choices[0].message.content;
+  }
+  if(provider==='gemini'){
+    const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+key,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{maxOutputTokens:600}})
+    });
+    const d = await res.json();
+    return d.candidates[0].content.parts[0].text;
+  }
+}
+
+async function runValidator(){
+  const btn = document.querySelector('#panel-smart .smart-panel:nth-child(1) .smart-run-btn');
+  const result = document.getElementById('val-result');
+  const spinner = document.getElementById('val-spinner');
+  btn.disabled=true; spinner.className='loading-spinner';
+  result.className='smart-result'; result.style.display='none';
+  const objective = document.getElementById('s-objective').value;
+  const scenes = collectScenes();
+  if(!objective){ result.className='smart-result err show'; result.textContent='Add a learning objective in Scenario first.'; btn.disabled=false; spinner.className=''; return; }
+  try{
+    const prompt = `You are an instructional design expert. A learning objective and a list of scenario scenes have been provided. Evaluate whether the scenes actually assess the stated objective. Be direct and specific. If aligned, say so briefly. If not, explain the gap and suggest a fix. Keep your response to 3-4 sentences.
+
+OBJECTIVE: ${objective}
+
+SCENES: ${scenes.map((s,i)=>`Scene ${i+1}: ${s.context}`).join('\n')}`;
+    const text = await callSmartAI(prompt);
+    const isGood = text.toLowerCase().includes('aligned') || text.toLowerCase().includes('well') || text.toLowerCase().includes('strong') || text.toLowerCase().includes('effectively');
+    result.className='smart-result show '+(isGood?'ok':'warn');
+    result.textContent = text;
+  }catch(e){ result.className='smart-result err show'; result.textContent='Error: '+e.message; }
+  btn.disabled=false; spinner.className='';
+}
+
+async function runDifficulty(){
+  const btn = document.querySelector('#panel-smart .smart-panel:nth-child(2) .smart-run-btn');
+  const result = document.getElementById('diff-result');
+  const spinner = document.getElementById('diff-spinner');
+  btn.disabled=true; spinner.className='loading-spinner';
+  result.className='smart-result'; result.style.display='none';
+  const scenes = collectScenes();
+  if(!scenes.length){ result.className='smart-result err show'; result.textContent='Add some scenes first.'; btn.disabled=false; spinner.className=''; return; }
+  try{
+    const prompt = `You are an instructional design expert. Rate each scene's difficulty for a learner on a scale of 1-5 (1=very easy, 5=very hard). Return ONLY a JSON array like: [{"scene":"Scene 1 label","difficulty":3,"reason":"one short reason"}]. No other text.
+
+SCENES: ${scenes.map((s,i)=>`Scene ${i+1} (${s.label||'Scene '+(i+1)}): ${s.context}`).join('\n')}`;
+    const text = await callSmartAI(prompt);
+    const cleaned = text.replace(/```json|```/g,'').trim();
+    const ratings = JSON.parse(cleaned);
+    const colors = ['','#4ADE80','#86EFAC','#FBBF24','#FB923C','#F87171'];
+    result.className='smart-result show';
+    result.innerHTML='<div class="difficulty-bars">'+ratings.map(r=>{
+      const pct=(r.difficulty/5)*100;
+      return `<div class="diff-row">
+        <div class="diff-label" title="${r.scene}">${r.scene}</div>
+        <div class="diff-bar-wrap"><div class="diff-bar" style="width:${pct}%;background:${colors[r.difficulty]||'#999'}"></div></div>
+        <div class="diff-badge" style="background:${colors[r.difficulty]}22;color:${colors[r.difficulty]};font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px">${['','Easy','Easy','Medium','Hard','Hard'][r.difficulty]||r.difficulty}</div>
+      </div>`;
+    }).join('')+'</div>';
+  }catch(e){ result.className='smart-result err show'; result.textContent='Error: '+e.message; }
+  btn.disabled=false; spinner.className='';
+}
+
+async function runToneCheck(){
+  const btn = document.querySelector('#panel-smart .smart-panel:nth-child(3) .smart-run-btn');
+  const result = document.getElementById('tone-result');
+  const spinner = document.getElementById('tone-spinner');
+  btn.disabled=true; spinner.className='loading-spinner';
+  result.className='smart-result'; result.style.display='none';
+  const scenes = collectScenes();
+  const personality = document.getElementById('c-sme-personality').value;
+  const name = document.getElementById('c-sme-name').value||'the SME';
+  if(!scenes.length){ result.className='smart-result err show'; result.textContent='Add some scenes first.'; btn.disabled=false; spinner.className=''; return; }
+  try{
+    const prompt = `You are an instructional design expert reviewing a scenario for tone consistency. The SME character (${name}) has this personality: "${personality}". Review the dialogue across scenes and tell me: Is the character's voice consistent? Does any line feel out of character? Are there any jarring tonal shifts? Keep your response to 3-5 sentences and be specific.
+
+DIALOGUE: ${scenes.map((s,i)=>`Scene ${i+1}: "${s.smeText||'(no dialogue)'}"`).join('\n')}`;
+    const text = await callSmartAI(prompt);
+    const isConsistent = text.toLowerCase().includes('consistent') || text.toLowerCase().includes('coherent') || text.toLowerCase().includes('well');
+    result.className='smart-result show '+(isConsistent?'ok':'warn');
+    result.textContent = text;
+  }catch(e){ result.className='smart-result err show'; result.textContent='Error: '+e.message; }
+  btn.disabled=false; spinner.className='';
+}
+
+// ── CHARACTER LIBRARY ─────────────────────────────────────────────────────
+function saveCharToLibrary(){
+  const name = document.getElementById('c-sme-name').value;
+  const role = document.getElementById('c-sme-role').value;
+  if(!name){ alert('Add a character name first'); return; }
+  const chars = JSON.parse(localStorage.getItem('sb-char-library')||'[]');
+  const char = { id:Date.now(), name, role, personality: document.getElementById('c-sme-personality').value, emotion:state.sme.emotion, skin:state.sme.skin, hair:state.sme.hair, clothing:state.sme.clothing };
+  chars.push(char);
+  localStorage.setItem('sb-char-library', JSON.stringify(chars));
+  renderCharLibrary();
+}
+
+function renderCharLibrary(){
+  const chars = JSON.parse(localStorage.getItem('sb-char-library')||'[]');
+  const grid = document.getElementById('char-lib-grid');
+  const empty = document.getElementById('char-lib-empty');
+  if(!chars.length){ grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  grid.innerHTML = chars.map(c=>`
+    <div class="char-lib-card" onclick="loadCharFromLibrary(${c.id})">
+      <svg viewBox="0 0 60 70" width="50" height="58" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="50" width="40" height="20" rx="5" fill="${c.clothing}"/>
+        <rect x="22" y="43" width="16" height="10" rx="2" fill="${c.skin}"/>
+        <ellipse cx="30" cy="30" rx="18" ry="20" fill="${c.skin}"/>
+        <ellipse cx="30" cy="13" rx="18" ry="9" fill="${c.hair}"/>
+        <rect x="12" y="13" width="36" height="6" fill="${c.hair}"/>
+      </svg>
+      <div class="char-lib-name">${c.name}</div>
+      <div class="char-lib-role">${c.role||'No role'}</div>
+    </div>`).join('');
+}
+
+function loadCharFromLibrary(id){
+  const chars = JSON.parse(localStorage.getItem('sb-char-library')||'[]');
+  const char = chars.find(c=>c.id===id);
+  if(!char) return;
+  setValue('c-sme-name', char.name);
+  setValue('c-sme-role', char.role);
+  setValue('c-sme-personality', char.personality);
+  state.sme.skin=char.skin; state.sme.hair=char.hair; state.sme.clothing=char.clothing; state.sme.emotion=char.emotion;
+  updateCharPreview();
+  showPanel('characters');
+  alert('Character loaded: '+char.name);
+}
+
+function clearLibrary(){
+  if(confirm('Clear all saved characters?')){ localStorage.removeItem('sb-char-library'); renderCharLibrary(); }
+}
+
+// ── JSON SHARE ────────────────────────────────────────────────────────────
+function getScenarioConfig(){
+  return {
+    title: gv('s-title'), learnerRole: gv('s-learner-role'), skill: gv('s-skill'),
+    objective: gv('s-objective'), scoreLabel: gv('s-score-label'),
+    scoreLow: gv('s-score-low'), scoreHigh: gv('s-score-high'), tone: gv('s-tone'),
+    smeName: gv('c-sme-name'), smeRole: gv('c-sme-role'),
+    smePersonality: gv('c-sme-personality'), smeEmotion: state.sme.emotion,
+    smeSkin: state.sme.skin, smeHair: state.sme.hair, smeClothing: state.sme.clothing,
+    coachName: gv('c-coach-name'), coachStyle: gv('c-coach-style'),
+    acts: collectActsRaw(),
+    endings:{
+      highThreshold: gv('e-high-threshold')||'80', midThreshold: gv('e-mid-threshold')||'50',
+      high:{ title:gv('e-high-title'), sub:gv('e-high-sub'), narr:gv('e-high-narr'), tips:gv('e-high-tips') },
+      mid:{ title:gv('e-mid-title'), sub:gv('e-mid-sub'), narr:gv('e-mid-narr'), tips:gv('e-mid-tips') },
+      low:{ title:gv('e-low-title'), sub:gv('e-low-sub'), narr:gv('e-low-narr'), tips:gv('e-low-tips') }
+    },
+    colors:{ sme:gv('col-sme-hex'), you:gv('col-you-hex'), coach:gv('col-coach-hex'), bg:gv('col-bg-hex'), surface:gv('col-surface-hex') }
+  };
+}
+
+function showShareJSON(){
+  const box = document.getElementById('share-json-box');
+  box.style.display = box.style.display==='none'?'block':'none';
+  box.textContent = JSON.stringify(getScenarioConfig(), null, 2);
+}
+
+function copyShareJSON(){
+  navigator.clipboard.writeText(JSON.stringify(getScenarioConfig(), null, 2));
+  alert('Copied to clipboard');
+}
+
+function exportScenarioJSON(){
+  const json = JSON.stringify(getScenarioConfig(), null, 2);
+  const blob = new Blob([json],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (gv('s-title')||'scenario').replace(/\s+/g,'-').toLowerCase()+'.json';
+  a.click();
+}
+
+function importScenario(){
+  const input = document.createElement('input');
+  input.type='file'; input.accept='.json';
+  input.onchange = e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      try{
+        const d = JSON.parse(ev.target.result);
+        loadFromConfig(d);
+        alert('Scenario imported successfully');
+      }catch(err){ alert('Could not parse JSON: '+err.message); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function loadFromConfig(d){
+  setValue('s-title',d.title); setValue('s-learner-role',d.learnerRole);
+  setValue('s-skill',d.skill); setValue('s-objective',d.objective);
+  setValue('s-score-label',d.scoreLabel); setValue('s-score-low',d.scoreLow); setValue('s-score-high',d.scoreHigh);
+  setValue('s-tone',d.tone);
+  setValue('c-sme-name',d.smeName); setValue('c-sme-role',d.smeRole);
+  setValue('c-sme-personality',d.smePersonality);
+  setValue('c-coach-name',d.coachName); setValue('c-coach-style',d.coachStyle);
+  state.sme.skin=d.smeSkin||'#C8956A'; state.sme.hair=d.smeHair||'#1A1410';
+  state.sme.clothing=d.smeClothing||'#2D3A5C'; state.sme.emotion=d.smeEmotion||'tense';
+  if(d.endings){
+    const e=d.endings;
+    setValue('e-high-threshold',e.highThreshold||'80'); setValue('e-mid-threshold',e.midThreshold||'50');
+    setValue('e-high-title',e.high.title); setValue('e-high-sub',e.high.sub);
+    setValue('e-high-narr',e.high.narr); setValue('e-high-tips',e.high.tips);
+    setValue('e-mid-title',e.mid.title); setValue('e-mid-sub',e.mid.sub);
+    setValue('e-mid-narr',e.mid.narr); setValue('e-mid-tips',e.mid.tips);
+    setValue('e-low-title',e.low.title); setValue('e-low-sub',e.low.sub);
+    setValue('e-low-narr',e.low.narr); setValue('e-low-tips',e.low.tips);
+  }
+  if(d.colors){
+    const c=d.colors;
+    setValue('col-sme-hex',c.sme); setValue('col-sme',c.sme);
+    setValue('col-you-hex',c.you); setValue('col-you',c.you);
+    setValue('col-coach-hex',c.coach); setValue('col-coach',c.coach);
+    setValue('col-bg-hex',c.bg); setValue('col-bg',c.bg);
+    setValue('col-surface-hex',c.surface); setValue('col-surface',c.surface);
+  }
+  if(d.acts) loadActs(d.acts);
+  updateCharPreview();
+}
+
+// ── DATA COLLECTION ───────────────────────────────────────────────────────
+function collectScenes(){
+  return Array.from(document.querySelectorAll('.scene-row')).map(row=>{
+    const id = row.id;
+    return {
+      icon: gv(id+'-icon')||'💬', label: gv(id+'-label'),
+      detail: gv(id+'-detail'), smeText: gv(id+'-sme'),
+      narratorText: gv(id+'-narrator'), prompt: gv(id+'-prompt'),
+      context: gv(id+'-context'), scoreGain: parseInt(gv(id+'-score'))||10
+    };
+  });
+}
+
+function collectActsRaw(){
+  return Array.from(document.querySelectorAll('.act-block')).map(act=>{
+    const nameInput = act.querySelector('.act-name-input');
+    const scenes = Array.from(act.querySelectorAll('.scene-row')).map(row=>{
+      const id=row.id;
+      return { icon:gv(id+'-icon'), label:gv(id+'-label'), detail:gv(id+'-detail'),
+        smeText:gv(id+'-sme'), narratorText:gv(id+'-narrator'),
+        prompt:gv(id+'-prompt'), context:gv(id+'-context'), scoreGain:parseInt(gv(id+'-score'))||10 };
+    });
+    return { name:nameInput?nameInput.value:'', scenes };
+  });
+}
+
+// ── HTML GENERATION ───────────────────────────────────────────────────────
+function generateHTML(){
+  const cfg = getScenarioConfig();
+  const key = document.getElementById('ai-key').value.trim();
+  const provider = document.getElementById('ai-provider').value;
+  const smeName = cfg.smeName||'SME';
+  const smeFirstName = smeName.split(' ')[0];
+  const coachName = cfg.coachName||'Learning Coach';
+  const colSme = cfg.colors.sme||'#2D3A5C';
+  const colYou = cfg.colors.you||'#1A4A3A';
+  const colCoach = cfg.colors.coach||'#4A2D6B';
+  const colBg = cfg.colors.bg||'#F7F5F0';
+  const colSurface = cfg.colors.surface||'#FFFFFF';
+  const skin = cfg.smeSkin||'#C8956A';
+  const hair = cfg.smeHair||'#1A1410';
+  const clothing = cfg.smeClothing||'#2D3A5C';
+  const darkenedSkin = darken(skin,20);
+  const mouthPaths = { tense:'M38 74 Q50 71 62 74', neutral:'M38 74 Q50 75 62 74', warm:'M38 73 Q50 80 62 73' };
+  const startMouth = mouthPaths[cfg.smeEmotion||'tense'];
+  const highT = parseInt(cfg.endings.highThreshold)||80;
+  const midT = parseInt(cfg.endings.midThreshold)||50;
+
+  // Build SCENES array
+  const scenesJS = JSON.stringify(collectActsRaw().flatMap((act,ai)=>
+    act.scenes.map((s,si)=>({
+      id: ai*100+si+1,
+      act: act.name,
+      context:{ icon:s.icon||'💬', label:s.label||'Scene', detail:s.detail||'' },
+      messages: [
+        ...(s.smeText ? [{ from:'sme', name:smeName, text:s.smeText }] : []),
+        ...(s.narratorText ? [{ from:'narrator', text:s.narratorText }] : [])
+      ],
+      prompt: s.prompt||'What do you say?',
+      rajSaid: s.smeText||'(no dialogue)',
+      sceneContext: s.context||'',
+      scoreGain: s.scoreGain||10
+    }))
+  ), null, 2);
+
+  const endingsJS = `{
+    high:{ title:${JSON.stringify(cfg.endings.high.title)}, subtitle:${JSON.stringify(cfg.endings.high.sub)}, narrative:${JSON.stringify(cfg.endings.high.narr)}, tips:${JSON.stringify((cfg.endings.high.tips||'').split('\n').filter(Boolean))} },
+    mid:{ title:${JSON.stringify(cfg.endings.mid.title)}, subtitle:${JSON.stringify(cfg.endings.mid.sub)}, narrative:${JSON.stringify(cfg.endings.mid.narr)}, tips:${JSON.stringify((cfg.endings.mid.tips||'').split('\n').filter(Boolean))} },
+    low:{ title:${JSON.stringify(cfg.endings.low.title)}, subtitle:${JSON.stringify(cfg.endings.low.sub)}, narrative:${JSON.stringify(cfg.endings.low.narr)}, tips:${JSON.stringify((cfg.endings.low.tips||'').split('\n').filter(Boolean))} }
+  }`;
+
+  const sysPrompt = `You are a coach evaluating how a ${cfg.learnerRole||'learner'} responds to a scenario involving ${smeName}, ${cfg.smeRole||'a character'}. ${cfg.smePersonality||''} The skill being assessed is: ${cfg.skill||cfg.objective||'professional communication'}. Evaluate the response on a score of 1, 2, or 3. 1=Ineffective. 2=Partially effective. 3=Effective. Write: sme_reaction (1-2 sentences in ${smeFirstName}'s voice) and coach_feedback (2-4 sentences in a ${cfg.coachStyle||'direct'} coach voice). Return ONLY valid JSON: {"score":1,"sme_reaction":"...","coach_feedback":"..."}`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${cfg.title||'Scenario'}</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:${colBg};--surface:${colSurface};--surface2:#F0EDE7;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#1A1814;--text2:#6B6760;--text3:#9B9890;
+  --sme:${colSme};--sme-light:${lighten(colSme,50)}22;
+  --you:${colYou};--you-light:${lighten(colYou,50)}22;
+  --coach:${colCoach};--coach-light:${lighten(colCoach,50)}22;
+  --red:#C94040;--red-light:#FAE8E8;--yellow:#B87A1A;--yellow-light:#FDF3DC;--green:#2D7A4F;--green-light:#E6F5ED;
+  --fd:'DM Serif Display',Georgia,serif;--fb:'DM Sans',system-ui,sans-serif;
+  --r:12px;--rs:8px;--sh:0 2px 12px rgba(0,0,0,.06);--shm:0 4px 24px rgba(0,0,0,.10);
+}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
+#app{width:100%;max-width:740px}
+.scenario-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.scenario-title{font-family:var(--fd);font-size:1.05rem;color:var(--text);font-style:italic}
+.act-badge{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);background:var(--surface2);padding:4px 10px;border-radius:20px}
+.score-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1.25rem;margin-bottom:1.25rem;box-shadow:var(--sh)}
+.score-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.score-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
+.score-value{font-size:12px;font-weight:600;color:var(--text2)}
+.score-track{height:9px;background:var(--surface2);border-radius:20px;overflow:hidden}
+.score-fill{height:100%;border-radius:20px;transition:width .9s cubic-bezier(.34,1.56,.64,1),background .9s ease;background:#C94040}
+.score-markers{display:flex;justify-content:space-between;margin-top:4px}
+.score-markers span{font-size:10px;color:var(--text3)}
+.score-bump{animation:sPulse .6s ease}
+@keyframes sPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem 1rem 1rem;margin-bottom:1.25rem;box-shadow:var(--sh);display:flex;align-items:flex-end;justify-content:space-between;gap:.5rem;min-height:180px;position:relative;overflow:hidden}
+.stage-bg{position:absolute;inset:0;opacity:.03;background:repeating-linear-gradient(90deg,#000 0,#000 1px,transparent 1px,transparent 40px),repeating-linear-gradient(#000 0,#000 1px,transparent 1px,transparent 40px)}
+.char-slot{display:flex;flex-direction:column;align-items:center;gap:.5rem;flex:1;max-width:180px;position:relative;z-index:1}
+.char-slot.hidden{opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .5s,transform .5s}
+.char-slot.visible{opacity:1;transform:translateY(0);transition:opacity .5s,transform .5s}
+.char-name{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3)}
+.char-name.sme-col{color:var(--sme)}.char-name.you-col{color:var(--you)}.char-name.coach-col{color:var(--coach)}
+.face-wrap{width:90px;height:110px;position:relative}
+.face-wrap svg{animation:breathe 3.5s ease-in-out infinite;transform-origin:bottom center}
+@keyframes breathe{0%,100%{transform:scaleY(1) translateY(0)}50%{transform:scaleY(1.015) translateY(-1.5px)}}
+.thinking .eye-l,.thinking .eye-r{animation:thinkEye 1.2s ease-in-out infinite}
+@keyframes thinkEye{0%,100%{transform:translateX(0)}40%{transform:translateX(3px)}70%{transform:translateX(-2px)}}
+.thinking .brow-l,.thinking .brow-r{animation:thinkBrow 1.2s ease-in-out infinite}
+@keyframes thinkBrow{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+.reacting{animation:reactBounce .5s ease both}
+@keyframes reactBounce{0%{transform:translateY(0)}30%{transform:translateY(-8px)}60%{transform:translateY(2px)}100%{transform:translateY(0)}}
+.scene-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shm);animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.scene-context{background:var(--surface2);border-bottom:1px solid var(--border);padding:.85rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+.ctx-icon{width:26px;height:26px;border-radius:6px;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ctx-text{font-size:13px;color:var(--text2);line-height:1.5}
+.ctx-text strong{color:var(--text);font-weight:600}
+.chat-area{padding:1.25rem;display:flex;flex-direction:column;gap:.9rem}
+.message{display:flex;gap:.7rem;align-items:flex-start;animation:fadeUp .3s ease both}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;flex-shrink:0}
+.av.sme{background:${lighten(colSme,50)}33;color:var(--sme);border:1.5px solid ${colSme}44}
+.av.you-av{background:${lighten(colYou,50)}33;color:var(--you);border:1.5px solid ${colYou}44}
+.av.coach-av{background:${lighten(colCoach,50)}33;color:var(--coach);border:1.5px solid ${colCoach}44;font-size:9px;font-weight:700}
+.bw{display:flex;flex-direction:column;gap:3px;max-width:calc(100% - 46px)}
+.sname{font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--text3);padding:0 4px;text-transform:uppercase}
+.bubble{padding:.7rem .95rem;border-radius:var(--r);font-size:13.5px;line-height:1.65;color:var(--text)}
+.sme-b{background:${lighten(colSme,50)}18;border:1px solid ${colSme}22;border-radius:var(--r) var(--r) var(--r) 4px}
+.you-b{background:${lighten(colYou,50)}18;border:1px solid ${colYou}22;border-radius:var(--r) var(--r) 4px var(--r)}
+.coach-b{background:${lighten(colCoach,50)}18;border:1px solid ${colCoach}22;border-radius:var(--r) var(--r) var(--r) 4px;font-style:italic}
+.narrator{font-size:12.5px;font-style:italic;color:var(--text2);text-align:center;padding:.2rem 1rem;line-height:1.6}
+.tdot{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;animation:tblink 1s infinite}
+@keyframes tblink{0%,100%{opacity:.15}50%{opacity:.85}}
+.input-area{padding:0 1.25rem 1.25rem}
+.input-prompt{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem}
+.input-prompt span{color:var(--coach)}
+textarea{width:100%;min-height:86px;padding:.8rem .95rem;border:1.5px solid var(--border2);border-radius:var(--rs);background:var(--surface);font-family:var(--fb);font-size:13.5px;line-height:1.6;color:var(--text);resize:vertical;outline:none;transition:border-color .18s}
+textarea:focus{border-color:var(--sme)}
+textarea:disabled{background:var(--surface2);color:var(--text3);cursor:not-allowed}
+.input-row{display:flex;align-items:center;justify-content:space-between;margin-top:.5rem;gap:.75rem}
+.char-hint{font-size:11px;color:var(--text3);flex-shrink:0}
+.send-btn{padding:.65rem 1.3rem;background:var(--sme);color:#fff;border:none;border-radius:var(--rs);font-family:var(--fb);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap}
+.send-btn:hover:not(:disabled){opacity:.85;transform:translateY(-1px)}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.retry-label{font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:0 1.25rem .7rem;display:none}
+.retry-label.show{display:block}
+.continue-btn{display:none;margin:0 1.25rem 1.25rem;padding:.8rem 1.5rem;background:var(--sme);color:#fff;border:none;border-radius:var(--rs);font-family:var(--fb);font-size:13.5px;font-weight:600;cursor:pointer;width:calc(100% - 2.5rem);transition:all .18s}
+.continue-btn:hover{opacity:.85;transform:translateY(-1px)}
+.continue-btn.show{display:block}
+.end-screen{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shm);animation:fadeUp .5s ease}
+.end-header{padding:2rem 1.5rem 1.5rem;text-align:center;border-bottom:1px solid var(--border)}
+.end-circle{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.9rem;margin:0 auto 1rem;border:3px solid}
+.end-title{font-family:var(--fd);font-size:1.5rem;margin-bottom:.5rem}
+.end-sub{font-size:13.5px;color:var(--text2);line-height:1.6;max-width:420px;margin:0 auto}
+.end-body{padding:1.5rem}
+.end-st{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.7rem}
+.end-narr{font-size:14px;line-height:1.75;color:var(--text);margin-bottom:1.5rem}
+.end-tips{background:var(--surface2);border-radius:var(--rs);padding:1rem 1.25rem}
+.end-tips h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.7rem}
+.end-tip{font-size:13px;color:var(--text2);line-height:1.6;padding:.45rem 0;border-top:1px solid var(--border);display:flex;gap:8px}
+.tip-dot{width:5px;height:5px;border-radius:50%;background:var(--sme);flex-shrink:0;margin-top:8px}
+.restart-btn{display:block;margin:1.25rem 1.5rem;padding:.8rem;background:none;border:1.5px solid var(--border2);border-radius:var(--rs);font-family:var(--fb);font-size:13.5px;font-weight:500;color:var(--text2);cursor:pointer;width:calc(100% - 3rem);transition:all .18s;text-align:center}
+.restart-btn:hover{border-color:var(--sme);color:var(--sme)}
+@media(max-width:500px){body{padding:1rem .75rem}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="scenario-header">
+    <span class="scenario-title">${cfg.title||'Scenario'}</span>
+    <span class="act-badge" id="act-badge"></span>
+  </div>
+  <div class="score-panel">
+    <div class="score-header">
+      <span class="score-label">${cfg.scoreLabel||'Score'}</span>
+      <span class="score-value" id="score-text">20 / 100</span>
+    </div>
+    <div class="score-track"><div class="score-fill" id="score-fill" style="width:20%"></div></div>
+    <div class="score-markers"><span>${cfg.scoreLow||'Low'}</span><span>${cfg.scoreHigh||'High'}</span></div>
+  </div>
+  <div class="stage">
+    <div class="stage-bg"></div>
+    <div class="char-slot visible" id="char-sme">
+      <div class="face-wrap">
+        <svg id="svg-sme" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" width="90" height="110">
+          <rect x="22" y="88" width="56" height="32" rx="8" fill="${clothing}"/>
+          <rect x="30" y="84" width="40" height="12" rx="4" fill="${lighten(clothing,20)}"/>
+          <rect x="40" y="75" width="20" height="14" rx="3" fill="${skin}"/>
+          <ellipse cx="50" cy="52" rx="30" ry="34" fill="${skin}"/>
+          <ellipse cx="50" cy="22" rx="30" ry="14" fill="${hair}"/>
+          <rect x="20" y="22" width="60" height="10" fill="${hair}"/>
+          <ellipse cx="20" cy="54" rx="5" ry="7" fill="${darkenedSkin}"/>
+          <ellipse cx="80" cy="54" rx="5" ry="7" fill="${darkenedSkin}"/>
+          <rect class="brow-l" id="sme-brow-l" x="28" y="36" width="18" height="4" rx="2" fill="${hair}" transform="rotate(-8,37,38)"/>
+          <rect class="brow-r" id="sme-brow-r" x="54" y="36" width="18" height="4" rx="2" fill="${hair}" transform="rotate(8,63,38)"/>
+          <ellipse class="eye-l" cx="37" cy="48" rx="6" ry="6.5" fill="#1A1814"/>
+          <ellipse class="eye-r" cx="63" cy="48" rx="6" ry="6.5" fill="#1A1814"/>
+          <circle cx="38.5" cy="46.5" r="1.5" fill="#fff"/>
+          <circle cx="64.5" cy="46.5" r="1.5" fill="#fff"/>
+          <path d="M50 52 Q46 60 49 63 Q50 64 51 63 Q54 60 50 52" fill="${darkenedSkin}"/>
+          <path class="mouth" id="sme-mouth" d="${startMouth}" stroke="#8B5E3A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <polygon points="40,84 50,90 60,84 55,88 50,95 45,88" fill="#FFF" opacity=".9"/>
+        </svg>
+      </div>
+      <div class="char-name sme-col">${smeName}</div>
+    </div>
+    <div class="char-slot hidden" id="char-coach">
+      <div class="face-wrap">
+        <svg id="svg-coach" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" width="90" height="110">
+          <rect x="22" y="88" width="56" height="32" rx="8" fill="${colCoach}"/>
+          <rect x="30" y="84" width="40" height="12" rx="4" fill="${lighten(colCoach,20)}"/>
+          <rect x="40" y="75" width="20" height="14" rx="3" fill="#D4A574"/>
+          <ellipse cx="50" cy="52" rx="29" ry="33" fill="#D4A574"/>
+          <ellipse cx="50" cy="20" rx="29" ry="13" fill="#2C1810"/>
+          <rect x="21" y="20" width="58" height="8" fill="#2C1810"/>
+          <ellipse cx="22" cy="38" rx="5" ry="14" fill="#2C1810"/>
+          <ellipse cx="78" cy="38" rx="5" ry="14" fill="#2C1810"/>
+          <ellipse cx="21" cy="53" rx="4.5" ry="6.5" fill="#C49060"/>
+          <ellipse cx="79" cy="53" rx="4.5" ry="6.5" fill="#C49060"/>
+          <rect x="26" y="42" width="19" height="13" rx="4" fill="none" stroke="#2C1810" stroke-width="2"/>
+          <rect x="55" y="42" width="19" height="13" rx="4" fill="none" stroke="#2C1810" stroke-width="2"/>
+          <line x1="45" y1="48" x2="55" y2="48" stroke="#2C1810" stroke-width="2"/>
+          <path class="brow-l" d="M27 40 Q36 36 45 40" stroke="#2C1810" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path class="brow-r" d="M55 40 Q64 36 73 40" stroke="#2C1810" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <ellipse class="eye-l" cx="36" cy="49" rx="4.5" ry="5" fill="#2C1810"/>
+          <ellipse class="eye-r" cx="64" cy="49" rx="4.5" ry="5" fill="#2C1810"/>
+          <circle cx="37.5" cy="47.5" r="1.3" fill="#fff"/>
+          <circle cx="65.5" cy="47.5" r="1.3" fill="#fff"/>
+          <path d="M50 54 Q47 60 49 63 Q50 64 51 63 Q53 60 50 54" fill="#C49060"/>
+          <path class="mouth" id="coach-mouth" d="M38 73 Q50 80 62 73" stroke="#8B5030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M42 84 L50 92 L58 84" stroke="#F0EAF8" stroke-width="2" fill="none"/>
+          <rect x="44" y="90" width="12" height="9" rx="2" fill="#F0EAF8"/>
+        </svg>
+      </div>
+      <div class="char-name coach-col">${coachName}</div>
+    </div>
+    <div class="char-slot visible" id="char-you">
+      <div class="face-wrap">
+        <svg id="svg-you" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" width="90" height="110">
+          <rect x="22" y="88" width="56" height="32" rx="8" fill="${colYou}"/>
+          <rect x="30" y="84" width="40" height="12" rx="4" fill="${lighten(colYou,20)}"/>
+          <rect x="40" y="75" width="20" height="14" rx="3" fill="#E8C49A"/>
+          <ellipse cx="50" cy="52" rx="29" ry="33" fill="#E8C49A"/>
+          <ellipse cx="50" cy="21" rx="28" ry="12" fill="#3D2408"/>
+          <rect x="22" y="21" width="56" height="9" fill="#3D2408"/>
+          <ellipse cx="78" cy="30" rx="6" ry="18" fill="#3D2408"/>
+          <ellipse cx="80" cy="46" rx="5" ry="10" fill="#3D2408"/>
+          <ellipse cx="21" cy="53" rx="4.5" ry="6.5" fill="#D4A870"/>
+          <ellipse cx="79" cy="53" rx="4.5" ry="6.5" fill="#D4A870"/>
+          <circle cx="20" cy="58" r="2.5" fill="#B87A1A"/>
+          <circle cx="80" cy="58" r="2.5" fill="#B87A1A"/>
+          <path class="brow-l" d="M27 39 Q36 35 44 39" stroke="#3D2408" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path class="brow-r" d="M56 39 Q64 35 73 39" stroke="#3D2408" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <ellipse class="eye-l" cx="36" cy="49" rx="5.5" ry="6" fill="#2C1810"/>
+          <ellipse class="eye-r" cx="64" cy="49" rx="5.5" ry="6" fill="#2C1810"/>
+          <circle cx="37.5" cy="47.5" r="1.5" fill="#fff"/>
+          <circle cx="65.5" cy="47.5" r="1.5" fill="#fff"/>
+          <path d="M50 55 Q47 61 49 64 Q50 65 51 64 Q53 61 50 55" fill="#D4A870"/>
+          <path class="mouth" id="you-mouth" d="M39 73 Q50 77 61 73" stroke="#8B5030" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <rect x="28" y="95" width="20" height="26" rx="2" fill="#E6F2EC" stroke="${colYou}" stroke-width="1.5"/>
+          <line x1="32" y1="100" x2="44" y2="100" stroke="${colYou}" stroke-width="1" opacity=".5"/>
+          <line x1="32" y1="104" x2="44" y2="104" stroke="${colYou}" stroke-width="1" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="char-name you-col">You</div>
+    </div>
+  </div>
+  <div id="scene-container"></div>
+</div>
+<script>
+const AI_PROVIDER=${JSON.stringify(provider)};
+const AI_KEY=${JSON.stringify(key)};
+const SME_NAME=${JSON.stringify(smeName)};
+const COACH_NAME=${JSON.stringify(coachName)};
+const SCORE_LABEL=${JSON.stringify(cfg.scoreLabel||'Score')};
+const SCORE_LOW=${JSON.stringify(cfg.scoreLow||'Low')};
+const SCORE_HIGH=${JSON.stringify(cfg.scoreHigh||'High')};
+const HIGH_THRESHOLD=${highT};
+const MID_THRESHOLD=${midT};
+const SYSTEM_PROMPT=${JSON.stringify(sysPrompt)};
+const SCENES=${scenesJS};
+const ENDINGS=${endingsJS};
+const MOUTHS={sme:{stern:'M38 74 Q50 71 62 74',neutral:'M38 74 Q50 75 62 74',pleased:'M38 73 Q50 80 62 73',open:'M38 71 Q50 82 62 71',speaking:'M38 73 Q50 79 62 73'},coach:{default:'M38 73 Q50 80 62 73',open:'M38 71 Q50 84 62 71'},you:{default:'M39 73 Q50 77 61 73',open:'M39 71 Q50 80 61 71',smile:'M39 72 Q50 80 61 72'}};
+const chars={sme:{wrap:null,svg:null,mouth:null,browL:null,browR:null},coach:{wrap:null,svg:null,mouth:null},you:{wrap:null,svg:null,mouth:null}};
+let lipIntervals={},score=20,currentScene=0,bubbleCounter=0;
+function getScoreColor(s){return s<40?'#C94040':s<65?'#B87A1A':'#2D7A4F'}
+function getScoreLabel(s){return s<40?'Tense':s<65?'Warming up':s<80?'Strong':'Excellent'}
+function updateScore(delta){
+  score=Math.max(10,Math.min(100,score+delta));
+  const fill=document.getElementById('score-fill'),text=document.getElementById('score-text');
+  fill.style.width=score+'%';fill.style.background=getScoreColor(score);
+  text.textContent=score+' / 100 — '+getScoreLabel(score);
+  fill.classList.remove('score-bump');void fill.offsetWidth;fill.classList.add('score-bump');
+  updateSMEEmotion(score);
+}
+function initChars(){
+  chars.sme.wrap=document.getElementById('char-sme');chars.sme.svg=document.getElementById('svg-sme');
+  chars.sme.mouth=document.getElementById('sme-mouth');chars.sme.browL=document.getElementById('sme-brow-l');chars.sme.browR=document.getElementById('sme-brow-r');
+  chars.coach.wrap=document.getElementById('char-coach');chars.coach.svg=document.getElementById('svg-coach');chars.coach.mouth=document.getElementById('coach-mouth');
+  chars.you.wrap=document.getElementById('char-you');chars.you.svg=document.getElementById('svg-you');chars.you.mouth=document.getElementById('you-mouth');
+}
+function updateSMEEmotion(s){
+  const r=chars.sme;if(!r.browL)return;
+  const t=(s-20)/80,aL=-12+t*9,aR=12-t*9;
+  r.browL.setAttribute('transform','rotate('+aL+',37,38)');r.browR.setAttribute('transform','rotate('+aR+',63,38)');
+  const mp=s<40?MOUTHS.sme.stern:s<70?MOUTHS.sme.neutral:MOUTHS.sme.pleased;
+  if(!lipIntervals.sme)r.mouth.setAttribute('d',mp);
+}
+function setState(id,state){
+  const c=chars[id];if(!c||!c.svg)return;
+  c.svg.classList.remove('thinking','reacting');
+  if(state==='thinking')c.svg.classList.add('thinking');
+  if(state==='speaking')startLip(id);else stopLip(id);
+}
+function startLip(id){
+  stopLip(id);const c=chars[id];if(!c.mouth)return;
+  let open=false;
+  const mo=id==='sme'?MOUTHS.sme.open:id==='coach'?MOUTHS.coach.open:MOUTHS.you.open;
+  const mc=id==='sme'?MOUTHS.sme.speaking:id==='coach'?MOUTHS.coach.default:MOUTHS.you.default;
+  lipIntervals[id]=setInterval(()=>{open=!open;c.mouth.setAttribute('d',open?mo:mc);},220);
+}
+function stopLip(id){
+  if(lipIntervals[id]){clearInterval(lipIntervals[id]);delete lipIntervals[id];}
+  const c=chars[id];if(!c.mouth)return;
+  if(id==='sme')c.mouth.setAttribute('d',MOUTHS.sme.stern);
+  else if(id==='coach')c.mouth.setAttribute('d',MOUTHS.coach.default);
+  else c.mouth.setAttribute('d',MOUTHS.you.default);
+}
+function reactChar(id,sc){
+  const c=chars[id];if(!c||!c.svg)return;
+  stopLip(id);c.svg.classList.add('reacting');setTimeout(()=>c.svg.classList.remove('reacting'),600);
+  if(id==='sme'){const mp=sc>=3?MOUTHS.sme.pleased:sc===2?MOUTHS.sme.neutral:MOUTHS.sme.stern;c.mouth.setAttribute('d',mp);}
+  else if(id==='you'){c.mouth.setAttribute('d',sc>=3?MOUTHS.you.smile:MOUTHS.you.default);}
+}
+function showCoach(show){const s=chars.coach.wrap;if(!s)return;s.classList.toggle('hidden',!show);s.classList.toggle('visible',show);}
+async function callAI(scene,text){
+  if(!AI_KEY||AI_KEY==='YOUR_KEY_HERE')throw new Error('No API key configured');
+  const msg='SCENE: '+scene.sceneContext+'\\nCHARACTER SAID: '+scene.rajSaid+'\\nLEARNER: '+text+'\\nReply with JSON only.';
+  if(AI_PROVIDER==='claude'){
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':AI_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:400,system:SYSTEM_PROMPT,messages:[{role:'user',content:msg}]})});
+    const d=await r.json();return parseJ(d.content[0].text);
+  }
+  if(AI_PROVIDER==='openai'){
+    const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+AI_KEY},body:JSON.stringify({model:'gpt-4o-mini',max_tokens:400,messages:[{role:'system',content:SYSTEM_PROMPT},{role:'user',content:msg}]})});
+    const d=await r.json();return parseJ(d.choices[0].message.content);
+  }
+  if(AI_PROVIDER==='gemini'){
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+AI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:SYSTEM_PROMPT}]},contents:[{role:'user',parts:[{text:msg}]}],generationConfig:{maxOutputTokens:400}})});
+    const d=await r.json();return parseJ(d.candidates[0].content.parts[0].text);
+  }
+}
+function parseJ(raw){try{return JSON.parse(raw.replace(/\`\`\`json|\`\`\`/g,'').trim());}catch(_){return{score:2,sme_reaction:'Hmm.',coach_feedback:'Could not parse response. Try again.'};}}
+function makeMsg(msg){
+  const el=document.createElement('div');
+  if(msg.from==='narrator'){el.className='narrator';el.textContent=msg.text;}
+  else{
+    el.className='message';
+    const isSme=msg.from==='sme',isCoach=msg.from==='coach';
+    const avClass=isSme?'sme':isCoach?'coach-av':'you-av';
+    const avTxt=isSme?SME_NAME.split(' ').map(w=>w[0]).join('').slice(0,2):isCoach?'C':'You';
+    const bClass=isSme?'sme-b':isCoach?'coach-b':'you-b';
+    const nm=msg.name||(isCoach?COACH_NAME:'You');
+    el.innerHTML='<div class="av '+avClass+'">'+avTxt+'</div><div class="bw"><div class="sname">'+nm+'</div><div class="bubble '+bClass+'" '+(msg.bid?'id="'+msg.bid+'"':'')+'>'+( msg.text||'')+'</div></div>';
+  }
+  return el;
+}
+function renderScene(index){
+  const scene=SCENES[index];if(!scene){renderEnding();return;}
+  document.getElementById('act-badge').textContent=scene.act||'';
+  const container=document.getElementById('scene-container');container.innerHTML='';
+  showCoach(false);setState('sme','idle');setState('you','idle');updateSMEEmotion(score);
+  const card=document.createElement('div');card.className='scene-card';
+  const ctx=document.createElement('div');ctx.className='scene-context';
+  ctx.innerHTML='<div class="ctx-icon">'+scene.context.icon+'</div><div class="ctx-text"><strong>'+scene.context.label+'</strong>'+(scene.context.detail?' — '+scene.context.detail:'')+'</div>';
+  card.appendChild(ctx);
+  const chat=document.createElement('div');chat.className='chat-area';chat.id='chat-area';
+  scene.messages.forEach((m,i)=>setTimeout(()=>{const el=makeMsg(m);chat.appendChild(el);if(m.from==='sme'){setState('sme','speaking');setTimeout(()=>setState('sme','idle'),m.text.length*28);}},i*400));
+  card.appendChild(chat);
+  const ia=document.createElement('div');ia.className='input-area';ia.id='input-area';
+  ia.innerHTML='<div class="input-prompt" id="input-label">Your response — <span>type what you would say or do</span></div><textarea id="response-ta" placeholder="'+scene.prompt+'"></textarea><div class="input-row"><span class="char-hint" id="char-hint">Ctrl+Enter to send</span><button class="send-btn" id="send-btn">Send ↗</button></div>';
+  card.appendChild(ia);
+  const rl=document.createElement('div');rl.className='retry-label';rl.id='retry-label';rl.textContent="Reflect on the feedback and try a different approach.";card.appendChild(rl);
+  const cb=document.createElement('button');cb.className='continue-btn';cb.id='continue-btn';
+  cb.textContent=index<SCENES.length-1?'Continue →':'See your result →';
+  cb.addEventListener('click',()=>{if(index<SCENES.length-1){currentScene++;renderScene(currentScene);}else renderEnding();window.scrollTo({top:0,behavior:'smooth'});});
+  card.appendChild(cb);container.appendChild(card);
+  const ta=document.getElementById('response-ta'),btn=document.getElementById('send-btn');
+  ta.addEventListener('input',()=>{document.getElementById('char-hint').textContent=ta.value.trim().length<10?'Keep going…':ta.value.trim().length+' characters';});
+  ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))btn.click();});
+  btn.addEventListener('click',()=>handleSubmit(scene,chat,ta,btn,rl,cb));
+}
+async function handleSubmit(scene,chat,ta,btn,rl,cb){
+  const text=ta.value.trim();if(text.length<5){ta.focus();return;}
+  bubbleCounter++;
+  const smeBid='sme-b-'+bubbleCounter,coachBid='coach-b-'+bubbleCounter;
+  chat.appendChild(makeMsg({from:'you',text}));
+  setState('you','speaking');if(chars.you.mouth)chars.you.mouth.setAttribute('d',MOUTHS.you.open);
+  setTimeout(()=>{setState('you','idle');if(chars.you.mouth)chars.you.mouth.setAttribute('d',MOUTHS.you.default);},1200);
+  ta.value='';ta.disabled=true;btn.disabled=true;
+  document.getElementById('input-label').innerHTML='Thinking…';
+  setState('sme','thinking');showCoach(true);setState('coach','thinking');
+  const smeEl=makeMsg({from:'sme',name:SME_NAME,bid:smeBid,text:''});chat.appendChild(smeEl);
+  document.getElementById(smeBid).innerHTML='<span class="tdot"></span>';
+  const coachEl=makeMsg({from:'coach',bid:coachBid,text:''});chat.appendChild(coachEl);
+  document.getElementById(coachBid).innerHTML='<span class="tdot"></span>';
+  chat.lastChild.scrollIntoView({behavior:'smooth',block:'nearest'});
+  let parsed={score:1,sme_reaction:'...',coach_feedback:'Could not connect.'};
+  try{
+    parsed=await callAI(scene,text);
+    setState('sme','idle');setState('coach','speaking');setTimeout(()=>setState('coach','idle'),1200);
+  }catch(err){
+    setState('sme','idle');setState('coach','idle');
+    document.getElementById(smeBid).textContent='Could not reach the AI.';
+    document.getElementById(coachBid).textContent=err.message.includes('No API key')?'No API key configured in this scenario.':'Error: '+err.message;
+    ta.disabled=false;btn.disabled=false;document.getElementById('input-label').innerHTML='Your response — <span>try again</span>';return;
+  }
+  const s=parseInt(parsed.score)||1;
+  reactChar('sme',s);setState('sme','speaking');
+  document.getElementById(smeBid).textContent=parsed.sme_reaction||'...';
+  setTimeout(()=>setState('sme','idle'),(parsed.sme_reaction||'').length*30+500);
+  document.getElementById(coachBid).textContent=parsed.coach_feedback||'';
+  if(s>=3){if(chars.you.mouth)chars.you.mouth.setAttribute('d',MOUTHS.you.smile);updateScore(scene.scoreGain);}
+  else if(s===2){updateScore(Math.round(scene.scoreGain*0.35));}
+  else{updateScore(-2);}
+  if(s>=3){document.getElementById('input-area').style.display='none';cb.classList.add('show');setTimeout(()=>showCoach(false),2000);}
+  else{rl.classList.add('show');document.getElementById('input-label').innerHTML="Try again — <span>use the feedback above</span>";ta.disabled=false;btn.disabled=false;ta.focus();}
+  chat.lastChild.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function renderEnding(){
+  const e=score>=HIGH_THRESHOLD?ENDINGS.high:score>=MID_THRESHOLD?ENDINGS.mid:ENDINGS.low;
+  window.parent.postMessage({type:'complete'},'*');
+  document.getElementById('act-badge').textContent='Complete';
+  showCoach(true);if(score>=HIGH_THRESHOLD)updateSMEEmotion(100);
+  const container=document.getElementById('scene-container');container.innerHTML='';
+  const colors=score>=HIGH_THRESHOLD?{bg:'var(--green-light)',border:'var(--green)',text:'var(--green)'}:score>=MID_THRESHOLD?{bg:'var(--yellow-light)',border:'var(--yellow)',text:'var(--yellow)'}:{bg:'var(--red-light)',border:'var(--red)',text:'var(--red)'};
+  const cs='background:'+colors.bg+';border-color:'+colors.border+';color:'+colors.text;
+  const end=document.createElement('div');end.className='end-screen';
+  end.innerHTML='<div class="end-header"><div class="end-circle" style="'+cs+'">'+score+'</div><div class="end-title">'+e.title+'</div><div class="end-sub">'+e.subtitle+'</div></div><div class="end-body"><div class="end-st">What happened</div><div class="end-narr">'+e.narrative+'</div><div class="end-tips"><h4>Key takeaways</h4>'+(e.tips||[]).map(t=>'<div class="end-tip"><div class="tip-dot"></div><span>'+t+'</span></div>').join('')+'</div></div><button class="restart-btn" id="restart-btn">↺ Start over</button>';
+  container.appendChild(end);
+  document.getElementById('restart-btn').addEventListener('click',()=>{score=20;currentScene=0;document.getElementById('score-fill').style.cssText='width:20%;background:#C94040';document.getElementById('score-text').textContent='20 / 100';showCoach(false);renderScene(0);window.scrollTo({top:0,behavior:'smooth'});});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+initChars();updateSMEEmotion(score);renderScene(0);
+<\/script>
+</body>
+</html>`;
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────
+function generatePreview(){
+  const frame = document.getElementById('preview-frame');
+  frame.classList.add('show');
+  frame.srcdoc = generateHTML();
+  frame.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function downloadHTML(){
+  const html = generateHTML();
+  const blob = new Blob([html],{type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (gv('s-title')||'scenario').replace(/\s+/g,'-').toLowerCase()+'.html';
+  a.click();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function gv(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function setValue(id,val){ const el=document.getElementById(id); if(el) el.value=val||''; }
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+renderInspirationChips();
+renderCharLibrary();
+</script>
+</body>
+</html>
